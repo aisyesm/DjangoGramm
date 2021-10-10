@@ -1,14 +1,21 @@
-from django.db import models as db_models
-from django.contrib.auth import models as auth_models
+from django.db import models
+from django.contrib.auth.models import User
 
 
-class User(auth_models.User):
-    bio = db_models.TextField(blank=True)
-    avatar = db_models.ImageField(null=True)
+class Account(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(blank=True)
+    avatar = models.ImageField(null=True)
+
+    def __str__(self):
+        return self.user.get_username()
 
 
-class Post(db_models.Model):
-    user = db_models.ForeignKey(User, on_delete=db_models.CASCADE)
-    image = db_models.ImageField()
-    caption = db_models.CharField(max_length=200, blank=True)
-    pub_date = db_models.DateTimeField('date posted')
+class Post(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    image = models.ImageField()
+    caption = models.CharField(max_length=200, blank=True)
+    pub_date = models.DateTimeField('date posted')
+
+    def __str__(self):
+        return f"{self.account}: {self.caption[:20]}"
