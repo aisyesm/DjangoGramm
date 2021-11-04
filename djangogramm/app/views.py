@@ -88,14 +88,13 @@ def activate(request, uidb64, token):
         return HttpResponse('Activation link is invalid!')
 
 
-class DetailView(generic.DetailView):
+class UserDetailView(generic.DetailView):
     model = User
-    template_name = 'app/user_page.html'
 
 
-def user_page(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-    context = {
-        'user': user,
-    }
-    return render(request, 'app/user_page.html', context=context)
+# def user_page(request, user_id):
+#     user = get_object_or_404(User, pk=user_id)
+#     context = {
+#         'user': user,
+#     }
+#     return render(request, 'app/user_detail.html', context=context)

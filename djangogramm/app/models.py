@@ -38,6 +38,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=255,
         unique=True,
     )
+    first_name = models.TextField(blank=True)
+    last_name = models.TextField(blank=True)
     bio = models.TextField(blank=True)
     avatar = models.ImageField(null=True, blank=True)
 
