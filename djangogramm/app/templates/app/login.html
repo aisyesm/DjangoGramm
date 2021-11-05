@@ -7,7 +7,7 @@
     <title>DjangoGramm</title>
 </head>
 <body>
-    <div class="form_container">
+    <div class="form_authetication">
         <form action="{% url 'app:handle_authentication' %}"  method="POST">
             {% csrf_token %}
             {{ form.as_p }} </br>

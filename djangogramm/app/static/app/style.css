@@ -1,9 +1,22 @@
-.form_container {
+h1 {
+    text-align:center;
+}
+
+h4 {
+    text-align:center;
+}
+
+.form_authetication {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100vh;
 }
+
+.form_enter_info {
+    display: flex;
+}
+
 form {
     display: flex;
     flex-direction: column;

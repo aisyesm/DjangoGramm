@@ -1,10 +1,10 @@
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views import generic
+from django.views import generic, View
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
@@ -12,32 +12,44 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
+from django.views.generic.edit import FormView
 
 
 from .models import User
-from .forms import UserForm
+from .forms import UserLoginForm, UserFullInfoForm
 
 
-def handle_authentication(request):
-    if request.method == 'POST':
-        form = UserForm(request.POST)
+class Authentication(View):
+    form_class = UserLoginForm
+    template_name = 'app/login.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
         if form.is_valid():
             # user pressed login button
+            print(type(request.POST))
+
             if request.POST['proceed'] == 'login':
                 user = authenticate(email=form.cleaned_data['email'],
                                     password=form.cleaned_data['password'])
                 if user is not None:
                     login(request, user)
-                    return HttpResponseRedirect(reverse('app:user_page', args=[user.id]))
+                    return HttpResponseRedirect(reverse('app:enter_info', args=[user.id]))
                 else:
-                    return render_initial_page(request, UserForm(), invalid_credentials=True)
+                    context = {'form': form, 'invalid_credentials': True}
+                    return render(request, self.template_name, context=context)
 
             # user pressed register button
             elif request.POST['proceed'] == 'register':
                 try:
                     validate_email(form.cleaned_data['email'])
                 except ValidationError:
-                    return render_initial_page(request, UserForm(), invalid_email=True)
+                    context = {'form': form, 'invalid_email': True}
+                    return render(request, self.template_name, context=context)
                 else:
                     user = User.objects.create_user(form.cleaned_data['email'],
                                                     form.cleaned_data['password'])
@@ -59,18 +71,7 @@ def handle_authentication(request):
                     )
                     return HttpResponse('Account activation link sent to your email')
 
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        return render_initial_page(request, UserForm())
-
-
-def render_initial_page(request, form, invalid_credentials=False, invalid_email=False):
-    context = {
-        'form': form,
-        'invalid_credentials': invalid_credentials,
-        'invalid_email': invalid_email
-    }
-    return render(request, 'app/login.html', context)
+        return render(request, self.template_name, {'form': form})
 
 
 def activate(request, uidb64, token):
@@ -83,18 +84,13 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
         login(request, user)
-        return HttpResponseRedirect(reverse('app:user_page', args=[user.id]))
+        return HttpResponseRedirect(reverse('app:enter_info', args=[user.id]))
     else:
         return HttpResponse('Activation link is invalid!')
 
 
-class UserDetailView(generic.DetailView):
+class UserEnterInfoView(FormView):
     model = User
+    form_class = UserFullInfoForm
+    template_name = 'app/user_enter_info.html'
 
-
-# def user_page(request, user_id):
-#     user = get_object_or_404(User, pk=user_id)
-#     context = {
-#         'user': user,
-#     }
-#     return render(request, 'app/user_detail.html', context=context)

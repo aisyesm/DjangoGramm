@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+    <title>DjangoGramm</title>
+</head>
+<body>
+    <h1>Welcome to DjangoGramm {{ user.email }}</h1>
+    <h4>Please enter some basic info about you</h4>
+    <div class="form_enter_info">
+        <form action="{% url 'app:enter_info' user.id %}"  method="POST">
+            {% csrf_token %}
+            {{ form.as_p }} </br>
+        </form>
+    </div>
+</body>
+</html>
