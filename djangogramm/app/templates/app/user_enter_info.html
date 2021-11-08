@@ -13,6 +13,10 @@
         <form action="{% url 'app:enter_info' user.id %}"  method="POST">
             {% csrf_token %}
             {{ form.as_p }} </br>
+            <div class="buttons_container">
+                <button name="proceed" type="submit" value="continue">Continue</button>
+                <a href="{% url 'app:logout'%}"><button type="button">Logout</button></a>
+            </div>
         </form>
     </div>
 </body>

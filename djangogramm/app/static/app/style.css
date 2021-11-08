@@ -15,6 +15,11 @@ h4 {
 
 .form_enter_info {
     display: flex;
+    justify-content: center;
+}
+
+.form_enter_info textarea {
+    resize: none;
 }
 
 form {
