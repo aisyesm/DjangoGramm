@@ -10,12 +10,12 @@
     <h1>Welcome to DjangoGramm {{ user.email }}</h1>
     <h4>Please enter some basic info about you</h4>
     <div class="form_enter_info">
-        <form action="{% url 'app:enter_info' user.id %}"  method="POST">
+        <form enctype="multipart/form-data" action="{% url 'app:enter_info' user.id %}"  method="POST">
             {% csrf_token %}
             {{ form.as_p }} </br>
             <div class="buttons_container">
+                <button type="button" onclick="location.href=`{% url 'app:logout'%}`">Logout</button>
                 <button name="proceed" type="submit" value="continue">Continue</button>
-                <a href="{% url 'app:logout'%}"><button type="button">Logout</button></a>
             </div>
         </form>
     </div>

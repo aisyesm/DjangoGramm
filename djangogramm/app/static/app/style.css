@@ -42,3 +42,25 @@ p {
     display: block;
     color: red;
 }
+
+.profile_container {
+    width: 1140px;
+    margin: 0 auto;
+}
+
+.user_info {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+}
+
+.avatar {
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.avatar img {
+    width: 200px;
+    height: 200px;
+    border-radius: 100%;
+}

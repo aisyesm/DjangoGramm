@@ -34,8 +34,8 @@ class Authentication(View):
                                     password=form.cleaned_data['password'])
                 if user is not None:
                     login(request, user)
-                    if user.first_name and user.last_name:
-                        return HttpResponseRedirect(reverse('app:profile', args=[user.id]))
+                    # if user.first_name and user.last_name:
+                    #     return HttpResponseRedirect(reverse('app:profile', args=[user.id]))
                     return HttpResponseRedirect(reverse('app:enter_info', args=[user.id]))
                 else:
                     context = {'form': form, 'invalid_credentials': True}
@@ -95,7 +95,6 @@ def logout_view(request):
 class UserEnterInfoView(generic.edit.FormView):
     form_class = UserFullInfoForm
     template_name = 'app/user_enter_info.html'
-    # success_url = f"/app/{}"
 
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
@@ -105,7 +104,7 @@ class UserEnterInfoView(generic.edit.FormView):
             user.first_name = form.cleaned_data.get('first_name')
             user.last_name = form.cleaned_data.get('last_name')
             user.bio = form.cleaned_data.get('bio')
-            user.avatar = form.cleaned_data.get('avatar')
+            user.avatar = form.files.get('avatar')
             user.save()
             self.success_url = reverse('app:profile', args=[user.id])
         return super().form_valid(form)

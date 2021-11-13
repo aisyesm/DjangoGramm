@@ -32,6 +32,11 @@ class MyUserManager(BaseUserManager):
         return user
 
 
+def user_avatar_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/avatar/<filename>
+    return '{0}/avatar/{1}'.format(instance.id, filename)
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         verbose_name='email address',
@@ -41,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.TextField(blank=True)
     last_name = models.TextField(blank=True)
     bio = models.TextField(blank=True)
-    avatar = models.ImageField(null=True, blank=True)
+    avatar = models.ImageField(null=True, blank=True, upload_to=user_avatar_path)
 
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)

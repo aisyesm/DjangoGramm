@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
     <title>DjangoGramm</title>
 </head>
 <body>
-  <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+    <div class="profile_container">
+        <div class="user_info">
+            <div class="avatar">
+                <img src="{{ user.avatar.url }}">
+            </div>
+            <div class="user_details">
+                <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
