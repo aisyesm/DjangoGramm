@@ -15,7 +15,7 @@ from django.conf import settings
 
 
 from .models import User
-from .forms import UserLoginForm, UserFullInfoForm
+from .forms import UserLoginForm, UserFullInfoForm, UserEditInfoForm
 
 
 class Authentication(View):
@@ -34,8 +34,8 @@ class Authentication(View):
                                     password=form.cleaned_data['password'])
                 if user is not None:
                     login(request, user)
-                    # if user.first_name and user.last_name:
-                    #     return HttpResponseRedirect(reverse('app:profile', args=[user.id]))
+                    if user.first_name and user.last_name:
+                        return HttpResponseRedirect(reverse('app:profile', args=[user.id]))
                     return HttpResponseRedirect(reverse('app:enter_info', args=[user.id]))
                 else:
                     context = {'form': form, 'invalid_credentials': True}
@@ -105,6 +105,24 @@ class UserEnterInfoView(generic.edit.FormView):
             user.last_name = form.cleaned_data.get('last_name')
             user.bio = form.cleaned_data.get('bio')
             user.avatar = form.files.get('avatar')
+            user.save()
+            self.success_url = reverse('app:profile', args=[user.id])
+        return super().form_valid(form)
+
+
+class UserEditInfoView(generic.edit.FormView):
+    form_class = UserEditInfoForm
+    template_name = 'app/user_edit_profile.html'
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        if self.request.user.is_authenticated:
+            user = User.objects.get(email=self.request.user.email)
+            user.first_name = form.cleaned_data.get('first_name')
+            user.last_name = form.cleaned_data.get('last_name')
+            user.bio = form.cleaned_data.get('bio')
+            # user.avatar = form.files.get('avatar')
             user.save()
             self.success_url = reverse('app:profile', args=[user.id])
         return super().form_valid(form)

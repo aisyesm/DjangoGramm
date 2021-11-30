@@ -14,6 +14,8 @@
             </div>
             <div class="user_details">
                 <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+                <button type="button" onclick="location.href=`{% url 'app:edit_profile' user.id %}`">Edit Profile</button>
+                <p>{{ user.bio }}</p>
             </div>
         </div>
     </div>

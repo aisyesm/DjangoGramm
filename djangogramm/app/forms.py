@@ -1,4 +1,6 @@
 from django import forms
+from django.forms import ModelForm
+from .models import User
 
 
 class UserLoginForm(forms.Form):
@@ -12,3 +14,9 @@ class UserFullInfoForm(forms.Form):
     bio = forms.CharField(label='Bio', required=False,
                           widget=forms.Textarea(attrs={'placeholder': 'Tell the world something about yourself...'}))
     avatar = forms.ImageField(label='Photo', required=False)
+
+
+class UserEditInfoForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'bio']
