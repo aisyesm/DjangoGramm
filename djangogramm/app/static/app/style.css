@@ -27,7 +27,7 @@ form {
     flex-direction: column;
 }
 
-p {
+.django-form-adjusted p {
     display: grid;
     grid-template-columns: 75px 1fr;
 }
@@ -64,3 +64,19 @@ p {
     height: 200px;
     border-radius: 100%;
 }
+
+.full_name_and_edit {
+    display: flex;
+    align-items: center;
+}
+
+.edit_button {
+    height: 25px;
+    margin-left: 25px;
+}
+
+.bio {
+   word-wrap: break-word;
+   width: 400px;
+}
+

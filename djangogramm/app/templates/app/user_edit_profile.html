@@ -12,9 +12,11 @@
     <div class="form_enter_info">
         <form enctype="multipart/form-data" action="{% url 'app:edit_profile' user.id %}"  method="POST">
             {% csrf_token %}
-            {{ form.as_p }} </br>
+            <div class="django-form-adjusted">
+                {{ form.as_p }} </br>
+            </div>
             <div class="buttons_container">
-                <button type="button" onclick="location.href=`{% url 'app:logout'%}`">Logout</button>
+                <button type="button" onclick="location.href=`{% url 'app:profile' user.id %}`">Cancel</button>
                 <button name="proceed" type="submit" value="continue">Submit</button>
             </div>
         </form>

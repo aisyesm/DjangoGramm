@@ -13,9 +13,12 @@
                 <img src="{{ user.avatar.url }}">
             </div>
             <div class="user_details">
-                <h1>{{ user.first_name }} {{ user.last_name }}</h1>
-                <button type="button" onclick="location.href=`{% url 'app:edit_profile' user.id %}`">Edit Profile</button>
-                <p>{{ user.bio }}</p>
+                <div class="full_name_and_edit">
+                    <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+                    <button type="button" class="edit_button"
+                            onclick="location.href=`{% url 'app:edit_profile' user.id %}`">Edit Profile</button>
+                </div>
+                <p class="bio">{{ user.bio }}</p>
             </div>
         </div>
     </div>

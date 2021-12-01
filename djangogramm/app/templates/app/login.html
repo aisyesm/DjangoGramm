@@ -10,7 +10,9 @@
     <div class="form_authetication">
         <form action="{% url 'app:handle_authentication' %}"  method="POST">
             {% csrf_token %}
-            {{ form.as_p }} </br>
+            <div class="django-form-adjusted">
+                {{ form.as_p }} </br>
+            </div>
             <div class="buttons_container">
                 <button name="proceed" type="submit" value="login">Login</button>
                 <button name="proceed" type="submit" value="register">Register</button>

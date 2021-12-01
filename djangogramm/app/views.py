@@ -127,6 +127,13 @@ class UserEditInfoView(generic.edit.FormView):
             self.success_url = reverse('app:profile', args=[user.id])
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        kwargs = super(UserEditInfoView, self).get_form_kwargs()
+        kwargs['initial_values'] = {'first_name': self.request.user.first_name,
+                                    'last_name': self.request.user.last_name,
+                                    'bio': self.request.user.bio}
+        return kwargs
+
 
 class UserProfile(generic.detail.DetailView):
     model = User
