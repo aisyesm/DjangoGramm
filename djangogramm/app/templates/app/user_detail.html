@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="user_posts">
-            {% for post in user.post_set.all %}
+            {% for post in user.post_set.all|dictsortreversed:"pub_date" %}
                 <img src="{{ post.image.url }}">
             {% endfor %}
         </div>
