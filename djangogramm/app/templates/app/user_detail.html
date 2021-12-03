@@ -15,11 +15,18 @@
             <div class="user_details">
                 <div class="full_name_and_edit">
                     <h3>{{ user.first_name }} {{ user.last_name }}</h3>
-                    <button type="button" class="edit_button"
-                            onclick="location.href=`{% url 'app:edit_profile' user.id %}`">Edit Profile</button>
                 </div>
                 <p class="bio">{{ user.bio }}</p>
+                <button type="button" class="add_post_button"
+                            onclick="location.href=`{% url 'app:add_post' user.id %}`">Add Post</button>
+                <button type="button" class="edit_button"
+                            onclick="location.href=`{% url 'app:edit_profile' user.id %}`">Edit Profile</button>
             </div>
+        </div>
+        <div class="user_posts">
+            {% for post in user.post_set.all %}
+                <img src="{{ post.image.url }}">
+            {% endfor %}
         </div>
     </div>
 </body>

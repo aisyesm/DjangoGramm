@@ -6,6 +6,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import generic, View
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 from django.core.exceptions import ValidationError
@@ -14,7 +15,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 
 
-from .models import User
+from .models import User, Post
 from .forms import UserLoginForm, UserFullInfoForm, UserEditInfoForm
 
 
@@ -138,6 +139,20 @@ class UserEditInfoView(generic.edit.FormView):
 class UserProfile(generic.detail.DetailView):
     model = User
     context_object_name = 'user'
+
+
+class AddPostView(generic.edit.CreateView, LoginRequiredMixin):
+    model = Post
+    fields = ['image', 'caption']
+    template_name_suffix = '_create_form'
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("app:profile", args=[self.request.user.id])
+
 
 
 

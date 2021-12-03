@@ -51,6 +51,20 @@ form {
 .user_info {
     display: grid;
     grid-template-columns: 1fr 2fr;
+    grid-template-rows: 300px;
+}
+
+.user_posts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 373.33px;
+    grid-gap: 10px;
+}
+
+.user_posts img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .avatar {
@@ -70,13 +84,8 @@ form {
     align-items: center;
 }
 
-.edit_button {
-    height: 25px;
-    margin-left: 25px;
-}
-
 .bio {
    word-wrap: break-word;
-   width: 400px;
+   width: 450px;
 }
 

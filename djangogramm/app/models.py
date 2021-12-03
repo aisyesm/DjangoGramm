@@ -34,7 +34,12 @@ class MyUserManager(BaseUserManager):
 
 def user_avatar_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/avatar/<filename>
-    return '{0}/avatar/{1}'.format(instance.id, filename)
+    return f'{instance.id}/avatar/{filename}'
+
+
+def user_posts_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/posts/<filename>
+    return f'{instance.user.id}/posts/{filename}'
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -71,10 +76,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Post(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    image = models.ImageField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to=user_posts_path, height_field=None, width_field=None)
     caption = models.CharField(max_length=200, blank=True)
-    pub_date = models.DateTimeField('date posted')
+    pub_date = models.DateTimeField('date posted', auto_now=True)
 
     def __str__(self):
-        return f"{self.account}: {self.caption[:20]}"
+        return f"{self.pub_date} {self.user}; caption: {self.caption}"
