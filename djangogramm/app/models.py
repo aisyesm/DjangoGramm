@@ -81,5 +81,8 @@ class Post(models.Model):
     caption = models.CharField(max_length=200, blank=True)
     pub_date = models.DateTimeField('date posted', auto_now=True)
 
+    class Meta:
+        ordering = ['-pub_date']
+
     def __str__(self):
         return f"{self.pub_date} {self.user}; caption: {self.caption}"

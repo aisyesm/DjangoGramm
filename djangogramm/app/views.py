@@ -13,10 +13,15 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions
 
 
 from .models import User, Post
 from .forms import UserLoginForm, UserFullInfoForm, UserEditInfoForm
+from .serializers import PostSerializer
 
 
 class Authentication(View):
@@ -152,6 +157,37 @@ class AddPostView(generic.edit.CreateView, LoginRequiredMixin):
 
     def get_success_url(self):
         return reverse("app:profile", args=[self.request.user.id])
+
+
+class UserPostList(APIView):
+    """
+    Get posts for the currently authenticated user.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, amount=None, format=None):
+        amount = request.GET.get('amount', '')
+        start = request.GET.get('start', '')
+        try:
+            amount = int(amount)
+            start = int(start)
+        except Exception as e:
+            print(f'Caught exception while getting posts {e}')
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if not start and not amount:
+            posts = Post.objects.filter(user__id=request.user.id)
+        elif isinstance(start, int) and not amount:
+            posts = Post.objects.filter(user__id=request.user.id)[start:]
+        elif isinstance(amount, int) and not start:
+            posts = Post.objects.filter(user__id=request.user.id)[:amount]
+        elif isinstance(amount, int) and isinstance(start, int):
+            posts = Post.objects.filter(user__id=request.user.id)[start:start + amount]
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
 
 
 
