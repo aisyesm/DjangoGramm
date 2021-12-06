@@ -1,4 +1,6 @@
 from django.core.mail import send_mail
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -8,15 +10,12 @@ from django.views import generic, View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
-from django.urls import reverse
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
 from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse, reverse_lazy
 from django.conf import settings
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions
 
 
 from .models import User, Post
@@ -98,9 +97,10 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('app:handle_authentication'))
 
 
-class UserEnterInfoView(generic.edit.FormView):
+class UserEnterInfoView(LoginRequiredMixin, generic.edit.FormView):
     form_class = UserFullInfoForm
     template_name = 'app/user_enter_info.html'
+    login_url = reverse_lazy('app:handle_authentication')
 
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
@@ -116,9 +116,10 @@ class UserEnterInfoView(generic.edit.FormView):
         return super().form_valid(form)
 
 
-class UserEditInfoView(generic.edit.FormView):
+class UserEditInfoView(LoginRequiredMixin, generic.edit.FormView):
     form_class = UserEditInfoForm
     template_name = 'app/user_edit_profile.html'
+    login_url = reverse_lazy('app:handle_authentication')
 
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
@@ -141,15 +142,17 @@ class UserEditInfoView(generic.edit.FormView):
         return kwargs
 
 
-class UserProfile(generic.detail.DetailView):
+class UserProfile(LoginRequiredMixin, generic.detail.DetailView):
     model = User
     context_object_name = 'user'
+    login_url = reverse_lazy('app:handle_authentication')
 
 
-class AddPostView(generic.edit.CreateView, LoginRequiredMixin):
+class AddPostView(LoginRequiredMixin, generic.edit.CreateView):
     model = Post
     fields = ['image', 'caption']
     template_name_suffix = '_create_form'
+    login_url = reverse_lazy('app:handle_authentication')
 
     def form_valid(self, form):
         form.instance.user = self.request.user

@@ -21,6 +21,8 @@
                             onclick="location.href=`{% url 'app:add_post' user.id %}`">Add Post</button>
                 <button type="button" class="edit_button"
                             onclick="location.href=`{% url 'app:edit_profile' user.id %}`">Edit Profile</button>
+                <button type="button" class="logout"
+                            onclick="location.href=`{% url 'app:logout' %}`">Logout</button>
             </div>
         </div>
         <div class="user_posts"></div>
