@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    {% load app_extras %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/post_detail.css' %}">
+    <title>DjangoGramm</title>
+</head>
+<body>
+    <div class="post">
+        <div class="post-user">
+            <img src="{{ post.user.avatar.url }}">
+            <span>{{ post.user }}</span>
+        </div>
+
+        <img id="post-image" src="{{ post.image.url }}">
+        <p><span class="author">{{ post.user }}</span> {{ post.caption }}</p>
+        <p>{{ post.pub_date.month|month_name }} {{ post.pub_date.day }}, {{ post.pub_date.year }}</p>
+    </div>
+
+</body>
+</html>

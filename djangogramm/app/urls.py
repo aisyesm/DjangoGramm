@@ -13,6 +13,7 @@ urlpatterns = [
     path('<int:pk>/add_post', views.AddPostView.as_view(), name='add_post'),
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path('<int:pk>/profile', views.UserProfile.as_view(), name='profile'),
+    path('p/<int:pk>', views.PostDetail.as_view(), name='post_detail'),
     path('api-auth/', include('rest_framework.urls')),
 ]
 

@@ -6,7 +6,9 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views import generic, View
+from django.views import View
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView, CreateView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
@@ -97,7 +99,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('app:handle_authentication'))
 
 
-class UserEnterInfoView(LoginRequiredMixin, generic.edit.FormView):
+class UserEnterInfoView(LoginRequiredMixin, FormView):
     form_class = UserFullInfoForm
     template_name = 'app/user_enter_info.html'
     login_url = reverse_lazy('app:handle_authentication')
@@ -116,7 +118,7 @@ class UserEnterInfoView(LoginRequiredMixin, generic.edit.FormView):
         return super().form_valid(form)
 
 
-class UserEditInfoView(LoginRequiredMixin, generic.edit.FormView):
+class UserEditInfoView(LoginRequiredMixin, FormView):
     form_class = UserEditInfoForm
     template_name = 'app/user_edit_profile.html'
     login_url = reverse_lazy('app:handle_authentication')
@@ -142,7 +144,7 @@ class UserEditInfoView(LoginRequiredMixin, generic.edit.FormView):
         return kwargs
 
 
-class UserProfile(LoginRequiredMixin, generic.detail.DetailView):
+class UserProfile(LoginRequiredMixin, DetailView):
     model = User
     context_object_name = 'user'
     login_url = reverse_lazy('app:handle_authentication')
@@ -155,7 +157,7 @@ class UserProfile(LoginRequiredMixin, generic.detail.DetailView):
         return context
 
 
-class AddPostView(LoginRequiredMixin, generic.edit.CreateView):
+class AddPostView(LoginRequiredMixin, CreateView):
     model = Post
     fields = ['image', 'caption']
     template_name_suffix = '_create_form'
@@ -200,6 +202,12 @@ class UserPostList(APIView):
 
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
+
+
+class PostDetail(LoginRequiredMixin, DetailView):
+    model = Post
+    context_object_name = 'post'
+    login_url = reverse_lazy('app:handle_authentication')
 
 
 

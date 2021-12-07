@@ -1,8 +1,8 @@
 from django.db import models
-from django.conf import settings
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin
 )
+from PIL import Image
 
 
 class MyUserManager(BaseUserManager):
@@ -77,12 +77,21 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to=user_posts_path, height_field=None, width_field=None)
+    image = models.ImageField(upload_to=user_posts_path)
     caption = models.CharField(max_length=200, blank=True)
     pub_date = models.DateTimeField('date posted', auto_now=True)
 
     class Meta:
         ordering = ['-pub_date']
+
+    def save(self):
+        super().save()  # saving image first
+        if self.image:
+            with Image.open(self.image.path) as img:
+                if img.height > 1024 or img.width > 1024:
+                    size = (1024, 1024)
+                    img.thumbnail(size)
+                    img.save(self.image.path, format="JPEG")  # saving image at the same path
 
     def __str__(self):
         return f"{self.pub_date} {self.user}; caption: {self.caption}"

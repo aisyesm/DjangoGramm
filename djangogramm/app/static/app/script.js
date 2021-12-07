@@ -1,6 +1,6 @@
 "use strict"
 
-var curScriptElement = document.currentScript
+const curScriptElement = document.currentScript
 
 document.addEventListener("DOMContentLoaded", function() {
     let start = 0
@@ -26,8 +26,14 @@ function getPosts (start, amount, user_id) {
 function showPosts (posts) {
     const userPosts = document.querySelector('.user_posts')
     posts.forEach(post => {
+        const div = document.createElement('div')
+        div.classList.add("post-area");
+        const hyperlink = document.createElement('a')
+        hyperlink.href = `http://127.0.0.1:8000/app/p/${post.id}`
         const img = document.createElement('img')
         img.src = post.image
-        userPosts.append(img)
+        hyperlink.appendChild(img)
+        div.appendChild(hyperlink)
+        userPosts.append(div)
     })
 }
