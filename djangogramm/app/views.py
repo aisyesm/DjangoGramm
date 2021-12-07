@@ -147,6 +147,13 @@ class UserProfile(LoginRequiredMixin, generic.detail.DetailView):
     context_object_name = 'user'
     login_url = reverse_lazy('app:handle_authentication')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page_user = self.get_object()
+        auth_user = self.request.user
+        context['can_edit'] = True if auth_user.pk == page_user.id else False
+        return context
+
 
 class AddPostView(LoginRequiredMixin, generic.edit.CreateView):
     model = Post
