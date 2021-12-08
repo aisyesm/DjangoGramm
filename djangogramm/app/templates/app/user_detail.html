@@ -29,6 +29,6 @@
         </div>
         <div class="user_posts"></div>
     </div>
-    <script src="{% static 'app/script.js' %}" user_id={{ user.id }}></script>
+    <script src="{% static 'app/script.js' %}" user_id={{ user.id }} post_count={{ user.post_set.count }}></script>
 </body>
 </html>
