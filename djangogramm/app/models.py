@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin
 )
+from django.urls import reverse
 from PIL import Image
 
 
@@ -79,7 +80,7 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=user_posts_path)
     caption = models.CharField(max_length=200, blank=True)
-    pub_date = models.DateTimeField('date posted', auto_now=True)
+    pub_date = models.DateTimeField('date posted', auto_now_add=True)
 
     class Meta:
         ordering = ['-pub_date']
@@ -92,6 +93,9 @@ class Post(models.Model):
                     size = (1024, 1024)
                     img.thumbnail(size)
                     img.save(self.image.path, format="JPEG")  # saving image at the same path
+
+    def get_absolute_url(self):
+        return reverse('app:post_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         return f"{self.pub_date} {self.user}; caption: {self.caption}"

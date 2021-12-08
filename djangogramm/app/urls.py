@@ -15,6 +15,7 @@ urlpatterns = [
     path('<int:pk>/profile', views.UserProfile.as_view(), name='profile'),
     path('p/<int:pk>', views.PostDetail.as_view(), name='post_detail'),
     path('p/<int:pk>/delete', views.PostDeleteView.as_view(), name='post_delete'),
+    path('p/<int:pk>/update', views.PostUpdateView.as_view(), name='post_update'),
     path('api-auth/', include('rest_framework.urls')),
 ]
 

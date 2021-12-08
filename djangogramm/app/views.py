@@ -8,7 +8,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView, CreateView, DeleteView
+from django.views.generic.edit import FormView, CreateView, DeleteView, UpdateView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
@@ -217,6 +217,14 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('app:profile', kwargs={'pk': self.object.user.id})
+
+
+class PostUpdateView(LoginRequiredMixin, UpdateView):
+    model = Post
+    fields = ['caption']
+    template_name_suffix = '_update_form'
+    context_object_name = 'post'
+    login_url = reverse_lazy('app:handle_authentication')
 
 
 

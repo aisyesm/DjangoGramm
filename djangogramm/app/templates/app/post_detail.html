@@ -10,16 +10,31 @@
 <body>
     <div class="post">
         <div class="post-user">
-            <img src="{{ post.user.avatar.url }}">
-            <span>{{ post.user }}</span>
+            <div class="avatar">
+                <a href="{% url 'app:profile' post.user.id %}">
+                    <img src="{{ post.user.avatar.url }}">
+                </a>
+            </div>
+            <div class="author">
+                <a href="{% url 'app:profile' post.user.id %}">
+                    {{ post.user }}
+                </a>
+            </div>
         </div>
-
-        <img id="post-image" src="{{ post.image.url }}">
-        <p><span class="author">{{ post.user }}</span> {{ post.caption }}</p>
+        <div class="post-image"><img src="{{ post.image.url }}"></div>
+        <div class="caption">
+            <p>
+                <span class="author">
+                    <a href="{% url 'app:profile' post.user.id %}">{{ post.user }}</a>
+                </span>
+                {{ post.caption }}
+            </p>
+        </div>
         <p>{{ post.pub_date.month|month_name }} {{ post.pub_date.day }}, {{ post.pub_date.year }}</p>
     </div>
-    <button type="button" class="post-delete-button"
-                                onclick="location.href=`{% url 'app:post_delete' post.id %}`">Delete</button>
-
+    <div class="options">
+        <button type="button" onclick="location.href=`{% url 'app:post_update' post.id %}`">Edit</button>
+        <button type="button" onclick="location.href=`{% url 'app:post_delete' post.id %}`">Delete</button>
+    </div>
 </body>
 </html>
