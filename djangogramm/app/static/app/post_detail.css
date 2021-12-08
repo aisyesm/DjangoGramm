@@ -24,3 +24,7 @@
 }
 
 p { margin:0; }
+
+.post-delete-button {
+    margin-top:20px;
+}

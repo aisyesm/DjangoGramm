@@ -14,6 +14,7 @@ urlpatterns = [
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path('<int:pk>/profile', views.UserProfile.as_view(), name='profile'),
     path('p/<int:pk>', views.PostDetail.as_view(), name='post_detail'),
+    path('p/<int:pk>/delete', views.PostDeleteView.as_view(), name='post_delete'),
     path('api-auth/', include('rest_framework.urls')),
 ]
 

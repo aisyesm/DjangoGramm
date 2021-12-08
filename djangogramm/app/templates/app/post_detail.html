@@ -18,6 +18,8 @@
         <p><span class="author">{{ post.user }}</span> {{ post.caption }}</p>
         <p>{{ post.pub_date.month|month_name }} {{ post.pub_date.day }}, {{ post.pub_date.year }}</p>
     </div>
+    <button type="button" class="post-delete-button"
+                                onclick="location.href=`{% url 'app:post_delete' post.id %}`">Delete</button>
 
 </body>
 </html>
