@@ -71,6 +71,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         return True
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # saving image first
+        if self.avatar:
+            with Image.open(self.avatar.path) as img:
+                if img.height > 512 or img.width > 512:
+                    size = (512, 512)
+                    img.thumbnail(size)
+                    img.save(self.avatar.path, format="JPEG")  # saving image at the same path
+
     @property
     def is_staff(self):
         return self.is_admin

@@ -74,7 +74,7 @@ class Authentication(View):
                         [to_email],
                         fail_silently=False,
                     )
-                    return HttpResponse('Account activation link sent to your email')
+                    return render(request, "app/activation_link_sent.html")
 
         return render(request, self.template_name, {'form': form})
 
