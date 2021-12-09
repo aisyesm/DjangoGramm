@@ -2,17 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    {% load static %}
+    {% load app_extras %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/feed.css' %}">
     <title>DjangoGramm</title>
 </head>
 <body>
-  <h1>Posts</h1>
-  <ul>
-  {% for post in initial_posts %}
-      <li>{{ post.pub_date }} - {{ post.caption }}</li>
-  {% empty %}
-      <li>No posts yet.</li>
-  {% endfor %}
-  </ul>
-
+  <div class="feed-container">
+    <h1>Posts</h1>
+    {% for post in initial_posts %}
+      <div class="post">
+        <div class="post-user">
+          <div class="avatar">
+                <a href="{% url 'app:profile' post.user.id %}">
+                    <img src="{{ post.user.avatar.url }}">
+                </a>
+            </div>
+            <div class="author">
+                <a href="{% url 'app:profile' post.user.id %}">
+                    {{ post.user }}
+                </a>
+            </div>
+        </div>
+        <div class="photo">
+          <img src="{{ post.image.url }}">
+        </div>
+        <div class="caption">
+          <p>
+            <span class="author">
+                <a href="{% url 'app:profile' post.user.id %}">{{ post.user }}</a>
+            </span>
+            {{ post.caption }}
+          </p>
+        </div>
+        <div class="date">
+          <p>{{ post.pub_date.month|month_name }} {{ post.pub_date.day }}, {{ post.pub_date.year }}</p>
+        </div>
+      </div>
+    {% empty %}
+        <h3>No posts yet.</h3>
+    {% endfor %}
+  </div>
 </body>
 </html>

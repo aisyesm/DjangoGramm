@@ -1,0 +1,48 @@
+.feed-container {
+    width: 650px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.post {
+  border: thin solid grey;
+  border-radius: 10px;
+}
+
+.post-user {
+   display: flex;
+   align-items: center;
+   gap: 7px;
+   padding: 5px 0 5px 5px;
+}
+
+.avatar img {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+.author {
+    font-weight: bold;
+}
+
+.author:hover {
+    text-decoration: underline;
+}
+
+.author a{
+    color: black;
+    text-decoration: none;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+}
+
+.caption, .date {
+  padding-left: 5px;
+}
