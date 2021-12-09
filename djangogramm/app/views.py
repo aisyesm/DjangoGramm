@@ -173,32 +173,40 @@ class AddPostView(LoginRequiredMixin, CreateView):
 
 class UserPostList(APIView):
     """
-    Get posts for the currently authenticated user.
+    View class to return posts for UserProfile or Feed views.
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        amount = request.GET.get('amount', '')
-        start = request.GET.get('start', '')
-        user_id = request.GET.get('user_id', '')
+        # store received query params
+        q_params = {
+            'offset': request.GET.get('offset'),
+            'start': request.GET.get('start'),
+            'user_id': request.GET.get('user_id')
+        }
+        # validate params
+        for param, val in q_params.items():
+            if val:
+                try:
+                    q_params[param] = int(val)
+                except Exception as e:
+                    print(f'Caught exception while getting posts {e}')
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            amount = int(amount)
-            start = int(start)
-            user_id = int(user_id)
-        except Exception as e:
-            print(f'Caught exception while getting posts {e}')
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        if not start and not amount:
-            posts = Post.objects.filter(user__id=user_id)
-        elif isinstance(start, int) and not amount:
-            posts = Post.objects.filter(user__id=user_id)[start:]
-        elif isinstance(amount, int) and not start:
-            posts = Post.objects.filter(user__id=user_id)[:amount]
-        elif isinstance(amount, int) and isinstance(start, int):
-            posts = Post.objects.filter(user__id=user_id)[start:start + amount]
+        if q_params['user_id']:
+            if not q_params['start'] and not q_params['offset']:
+                posts = Post.objects.filter(user__id=q_params['user_id'])
+            elif not q_params['start'] or not q_params['offset']:
+                posts = Post.objects.filter(user__id=q_params['user_id'])[q_params['start']:q_params['offset']]
+            elif q_params['offset'] and q_params['start']:
+                posts = Post.objects.filter(user__id=q_params['user_id'])[q_params['start']:q_params['start'] + q_params['offset']]
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            if not q_params['start'] and not q_params['offset']:
+                posts = Post.objects.all()
+            elif not q_params['start'] or not q_params['offset']:
+                posts = Post.objects.all()[q_params['start']:q_params['offset']]
+            elif q_params['offset'] and q_params['start']:
+                posts = Post.objects.all()[q_params['start']:q_params['start'] + q_params['offset']]
 
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
