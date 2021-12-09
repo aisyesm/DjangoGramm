@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DjangoGramm</title>
+</head>
+<body>
+  <h1>Posts</h1>
+  <ul>
+  {% for post in initial_posts %}
+      <li>{{ post.pub_date }} - {{ post.caption }}</li>
+  {% empty %}
+      <li>No posts yet.</li>
+  {% endfor %}
+  </ul>
+
+</body>
+</html>

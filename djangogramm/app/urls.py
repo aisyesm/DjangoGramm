@@ -16,6 +16,7 @@ urlpatterns = [
     path('p/<int:pk>', views.PostDetail.as_view(), name='post_detail'),
     path('p/<int:pk>/delete', views.PostDeleteView.as_view(), name='post_delete'),
     path('p/<int:pk>/update', views.PostUpdateView.as_view(), name='post_update'),
+    path('feed', views.Feed.as_view(), name='feed'),
     path('api-auth/', include('rest_framework.urls')),
 ]
 

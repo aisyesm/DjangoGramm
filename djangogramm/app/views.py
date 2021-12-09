@@ -8,6 +8,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, DeleteView, UpdateView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -232,6 +233,14 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
     fields = ['caption']
     template_name_suffix = '_update_form'
     context_object_name = 'post'
+    login_url = reverse_lazy('app:handle_authentication')
+
+
+class Feed(LoginRequiredMixin, ListView):
+    model = Post
+    context_object_name = 'initial_posts'
+    queryset = Post.objects.all()[:7]
+    template_name = 'app/feed.html'
     login_url = reverse_lazy('app:handle_authentication')
 
 
