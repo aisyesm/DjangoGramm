@@ -17,12 +17,12 @@
                 <a href="{% url 'app:profile' post.user.id %}">
                     <img src="{{ post.user.avatar.url }}">
                 </a>
-            </div>
-            <div class="author">
-                <a href="{% url 'app:profile' post.user.id %}">
-                    {{ post.user }}
-                </a>
-            </div>
+          </div>
+          <div class="author">
+              <a href="{% url 'app:profile' post.user.id %}">
+                  {{ post.user }}
+              </a>
+          </div>
         </div>
         <div class="photo">
           <img src="{{ post.image.url }}">
@@ -43,5 +43,6 @@
         <h3>No posts yet.</h3>
     {% endfor %}
   </div>
+  <script src="{% static 'app/feed.js' %}" total_num_posts={{ total_num_posts }}></script>
 </body>
 </html>

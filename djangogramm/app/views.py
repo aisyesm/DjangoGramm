@@ -23,7 +23,7 @@ from rest_framework.response import Response
 
 from .models import User, Post
 from .forms import UserLoginForm, UserFullInfoForm, UserEditInfoForm
-from .serializers import PostSerializer
+from .serializers import UserProfilePostSerializer, FeedPostSerializer
 
 
 class Authentication(View):
@@ -43,7 +43,7 @@ class Authentication(View):
                 if user is not None:
                     login(request, user)
                     if user.first_name and user.last_name:
-                        return HttpResponseRedirect(reverse('app:profile', args=[user.id]))
+                        return HttpResponseRedirect(reverse('app:feed'))
                     return HttpResponseRedirect(reverse('app:enter_info', args=[user.id]))
                 else:
                     context = {'form': form, 'invalid_credentials': True}
@@ -57,6 +57,10 @@ class Authentication(View):
                     context = {'form': form, 'invalid_email': True}
                     return render(request, self.template_name, context=context)
                 else:
+                    existing_user = User.objects.filter(email=form.cleaned_data['email']).first()
+                    if existing_user:
+                        context = {'form': form, 'user_already_exist': True}
+                        return render(request, self.template_name, context=context)
                     user = User.objects.create_user(form.cleaned_data['email'],
                                                     form.cleaned_data['password'])
                     current_site = get_current_site(request)
@@ -201,6 +205,7 @@ class UserPostList(APIView):
                 posts = Post.objects.filter(user__id=q_params['user_id'])[q_params['start']:q_params['offset']]
             elif q_params['offset'] and q_params['start']:
                 posts = Post.objects.filter(user__id=q_params['user_id'])[q_params['start']:q_params['start'] + q_params['offset']]
+            serializer = UserProfilePostSerializer(posts, many=True)
         else:
             if not q_params['start'] and not q_params['offset']:
                 posts = Post.objects.all()
@@ -208,8 +213,8 @@ class UserPostList(APIView):
                 posts = Post.objects.all()[q_params['start']:q_params['offset']]
             elif q_params['offset'] and q_params['start']:
                 posts = Post.objects.all()[q_params['start']:q_params['start'] + q_params['offset']]
+            serializer = FeedPostSerializer(posts, many=True)
 
-        serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
 
@@ -242,6 +247,11 @@ class Feed(LoginRequiredMixin, ListView):
     queryset = Post.objects.all()[:7]
     template_name = 'app/feed.html'
     login_url = reverse_lazy('app:handle_authentication')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_num_posts'] = Post.objects.all().count()
+        return context
 
 
 

@@ -21,6 +21,8 @@
                 <p class="error">Invalid username or password</p>
             {% elif invalid_email %}
                 <p class="error">Invalid email</p>
+            {% elif user_already_exist %}
+                <p class="error">Account with this email already exists</p>
             {% endif %}
         </form>
     </div>
