@@ -8,15 +8,17 @@ class UserProfilePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['id', 'image']
+        read_only_fields = ['id', 'image']
 
 
 class FeedPostSerializer(serializers.ModelSerializer):
-    user_avatar = serializers.ImageField(source='user.avatar', read_only=True)
-    user_email = serializers.EmailField(source='user.email', read_only=True)
+    user_avatar = serializers.ImageField(source='user.avatar')
+    user_email = serializers.EmailField(source='user.email')
 
     class Meta:
         model = Post
         fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'user_email']
+        read_only_fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'user_email']
 
     def to_representation(self, instance):
         """Convert `pub_date` to time delta."""
