@@ -22,6 +22,8 @@
 
 .author {
     font-weight: bold;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
 }
 
 .author:hover {
@@ -38,8 +40,20 @@
     word-wrap: break-word;
 }
 
+.caption p {
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  color: #181818;
+}
+
 p { margin:0; }
 
 .options {
     margin-top:20px;
+}
+
+.date p {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    color: grey;
 }

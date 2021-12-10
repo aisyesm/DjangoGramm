@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     {% load static %}
-    {% load app_extras %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'app/post_detail.css' %}">
     <title>DjangoGramm</title>
 </head>
@@ -17,7 +19,7 @@
             </div>
             <div class="author">
                 <a href="{% url 'app:profile' post.user.id %}">
-                    {{ post.user }}
+                    {{ post.user.first_name }} {{ post.user.last_name }}
                 </a>
             </div>
         </div>
@@ -25,12 +27,16 @@
         <div class="caption">
             <p>
                 <span class="author">
-                    <a href="{% url 'app:profile' post.user.id %}">{{ post.user }}</a>
+                    <a href="{% url 'app:profile' post.user.id %}">
+                        {{ post.user.first_name }} {{ post.user.last_name }}
+                    </a>
                 </span>
                 {{ post.caption }}
             </p>
         </div>
-        <p>{{ post.pub_date.month|month_name }} {{ post.pub_date.day }}, {{ post.pub_date.year }}</p>
+        <div class="date">
+            <p>{{ post_timedelta }}</p>
+        </div>
     </div>
     <div class="options">
         <button type="button" onclick="location.href=`{% url 'app:post_update' post.id %}`">Edit</button>

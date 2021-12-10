@@ -1,3 +1,4 @@
+import pytz
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -20,7 +21,7 @@ from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-
+from .helpers import get_timedelta_for_post
 from .models import User, Post
 from .forms import UserLoginForm, UserFullInfoForm, UserEditInfoForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer
@@ -222,6 +223,12 @@ class PostDetail(LoginRequiredMixin, DetailView):
     model = Post
     context_object_name = 'post'
     login_url = reverse_lazy('app:handle_authentication')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pub_date = self.get_object().pub_date
+        context['post_timedelta'] = get_timedelta_for_post(pub_date)
+        return context
 
 
 class PostDeleteView(LoginRequiredMixin, DeleteView):
