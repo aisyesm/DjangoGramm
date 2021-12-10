@@ -13,12 +13,13 @@ class UserProfilePostSerializer(serializers.ModelSerializer):
 
 class FeedPostSerializer(serializers.ModelSerializer):
     user_avatar = serializers.ImageField(source='user.avatar')
-    user_email = serializers.EmailField(source='user.email')
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
 
     class Meta:
         model = Post
-        fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'user_email']
-        read_only_fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'user_email']
+        fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name']
+        read_only_fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name']
 
     def to_representation(self, instance):
         """Convert `pub_date` to time delta."""
@@ -44,4 +45,5 @@ class FeedPostSerializer(serializers.ModelSerializer):
             month = pub_date.strftime('%B')
             year = pub_date.strftime('%Y')
             ret['pub_date'] = f"{month} {day_of_month}" if diff.days < 365 else f"{month} {day_of_month}, {year}"
+        ret['pub_date'] = ret['pub_date'].upper()
         return ret

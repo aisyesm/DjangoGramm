@@ -48,7 +48,7 @@ function showPosts (posts) {
         divAuthor.classList.add('author')
         const userLink = document.createElement('a')
         userLink.href = `http://127.0.0.1:8000/app/${post.user}/profile`
-        userLink.textContent = post.user_email
+        userLink.textContent = `${post.first_name} ${post.last_name}`
         divAuthor.append(userLink)
         divUserPost.append(divAuthor)
 
