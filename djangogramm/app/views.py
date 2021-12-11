@@ -8,6 +8,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
+from django.views.generic.base import ContextMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, DeleteView, UpdateView
@@ -23,7 +24,7 @@ from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
 from .models import User, Post
-from .forms import UserLoginForm, UserFullInfoForm, UserEditInfoForm
+from .forms import UserLoginForm, UserFullInfoForm, UserEditInfoForm, UserRegisterForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer
 
 
@@ -50,14 +51,30 @@ class Authentication(View):
                     context = {'form': form, 'invalid_credentials': True}
                     return render(request, self.template_name, context=context)
 
-            # user pressed register button
-            elif request.POST['proceed'] == 'register':
+        return render(request, self.template_name, {'form': form})
+
+
+class Register(View):
+    form_class = UserRegisterForm
+    template_name = 'app/register.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            if request.POST['proceed'] == 'register':
                 try:
                     validate_email(form.cleaned_data['email'])
                 except ValidationError:
                     context = {'form': form, 'invalid_email': True}
                     return render(request, self.template_name, context=context)
                 else:
+                    if form.cleaned_data['password'] != form.cleaned_data['confirm_password']:
+                        context = {'form': form, 'passwords_dont_match': True}
+                        return render(request, self.template_name, context=context)
                     existing_user = User.objects.filter(email=form.cleaned_data['email']).first()
                     if existing_user:
                         context = {'form': form, 'user_already_exist': True}
@@ -159,6 +176,7 @@ class UserProfile(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         page_user = self.get_object()
         auth_user = self.request.user
+        context['auth_user'] = auth_user
         context['can_edit'] = True if auth_user.pk == page_user.id else False
         return context
 
@@ -250,14 +268,13 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 
 class Feed(LoginRequiredMixin, ListView):
     model = Post
-    context_object_name = 'initial_posts'
-    queryset = Post.objects.all()[:7]
     template_name = 'app/feed.html'
     login_url = reverse_lazy('app:handle_authentication')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_num_posts'] = Post.objects.all().count()
+        context['auth_user'] = self.request.user
         return context
 
 

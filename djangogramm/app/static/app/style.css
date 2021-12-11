@@ -6,11 +6,43 @@ h4 {
     text-align:center;
 }
 
+.navbar {
+    display: flex;
+    gap: 10px;
+    justify-content: end;
+    flex-direction: row;
+}
+
 .form_authentication {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     height: 100vh;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+    width: 350px;
+}
+
+.field input {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.email-password {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .form_enter_info {
@@ -27,15 +59,9 @@ form {
     flex-direction: column;
 }
 
-.django-form-adjusted p {
-    display: grid;
-    grid-template-columns: 75px 1fr;
-}
-
-.buttons_container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-column-gap: 10px;
+.buttons_container button{
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .error {

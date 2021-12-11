@@ -1,10 +1,16 @@
-from django.forms import Form, CharField, ImageField, ModelForm, Textarea
+from django.forms import Form, CharField, ImageField, ModelForm, Textarea, TextInput, PasswordInput
 from .models import User
 
 
 class UserLoginForm(Form):
-    email = CharField(label='Email', max_length=100)
-    password = CharField(label='Password', max_length=100)
+    email = CharField(label='', max_length=100, widget=TextInput(attrs={'placeholder': 'name@domain.com'}))
+    password = CharField(label='', max_length=100, widget=PasswordInput())
+
+
+class UserRegisterForm(Form):
+    email = CharField(label='', max_length=100, widget=TextInput(attrs={'placeholder': 'name@domain.com'}))
+    password = CharField(label='', max_length=100, widget=PasswordInput())
+    confirm_password = CharField(label='', max_length=100, widget=PasswordInput())
 
 
 class UserFullInfoForm(Form):

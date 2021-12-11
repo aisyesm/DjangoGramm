@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="form_authentication">
-        <form action="{% url 'app:handle_authentication' %}"  method="POST">
+        <form action="{% url 'app:register' %}"  method="POST">
             {% csrf_token %}
             <div class="login-form">
                 <div class="email-password">
@@ -20,18 +20,23 @@
                         <div>Password</div>
                         <div>{{ form.password }}</div>
                     </div>
+                    <div class="field">
+                        <div>Confirm Password</div>
+                        <div>{{ form.confirm_password }}</div>
+                    </div>
                 </div>
                 <div class="buttons_container">
-                    <button name="proceed" type="submit" value="login">Login</button>
+                    <button name="proceed" type="submit" value="register">Create Account</button>
                 </div>
             </div>
-            {% if invalid_credentials %}
-                <p class="error">Invalid username or password</p>
+            {% if passwords_dont_match %}
+                <p class="error">Passwords don't match</p>
+            {% elif invalid_email %}
+                <p class="error">Invalid email</p>
+            {% elif user_already_exist %}
+                <p class="error">Account with this email already exists</p>
             {% endif %}
         </form>
-        <div class="new-user">
-            <p>Don't have an account? <a href="{% url 'app:register' %}">Sign up</a></p>
-        </div>
     </div>
 </body>
 </html>

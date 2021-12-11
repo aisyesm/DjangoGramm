@@ -8,16 +8,15 @@
 </head>
 <body>
     <h1>DjangoGramm</h1>
-    <h4>{{ user.email }}</h4>
     <div class="form_enter_info">
         <form enctype="multipart/form-data" action="{% url 'app:edit_profile' user.id %}"  method="POST">
             {% csrf_token %}
-            <div class="django-form-adjusted">
-                {{ form.as_p }} </br>
+            <div class="login-form">
+                {{ form}} </br>
             </div>
             <div class="buttons_container">
-                <button type="button" onclick="location.href=`{% url 'app:profile' user.id %}`">Cancel</button>
                 <button name="proceed" type="submit" value="continue">Submit</button>
+                <button type="button" onclick="location.href=`{% url 'app:profile' user.id %}`">Cancel</button>
             </div>
         </form>
     </div>

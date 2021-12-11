@@ -7,6 +7,7 @@ from . import views
 app_name = 'app'
 urlpatterns = [
     path('', views.Authentication.as_view(), name='handle_authentication'),
+    path('register', views.Register.as_view(), name='register'),
     path('logout', views.logout_view, name='logout'),
     path('<int:pk>/enter_info', views.UserEnterInfoView.as_view(), name='enter_info'),
     path('<int:pk>/edit_profile', views.UserEditInfoView.as_view(), name='edit_profile'),

@@ -8,6 +8,14 @@
 </head>
 <body>
     <div class="profile_container">
+        <div class="navbar">
+            <div class="navbar-item">
+                <a href="{% url 'app:feed' %}">Feed</a>
+            </div>
+            <div class="navbar-item">
+                <a href="{% url 'app:profile' auth_user.id %}">My profile</a>
+            </div>
+        </div>
         <div class="user_info">
             <div class="avatar">
                 <img src="{{ user.avatar.url }}">

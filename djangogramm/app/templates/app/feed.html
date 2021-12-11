@@ -10,7 +10,16 @@
     <title>DjangoGramm</title>
 </head>
 <body>
-  <div class="feed-container"></div>
-  <script src="{% static 'app/feed.js' %}" total_num_posts={{ total_num_posts }}></script>
+    <div class="feed-container">
+        <div class="navbar">
+            <div class="navbar-item">
+                <a href="{% url 'app:feed' %}">Feed</a>
+            </div>
+            <div class="navbar-item">
+                <a href="{% url 'app:profile' auth_user.id %}">My profile</a>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'app/feed.js' %}" total_num_posts={{ total_num_posts }}></script>
 </body>
 </html>
