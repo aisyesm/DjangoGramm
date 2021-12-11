@@ -31,3 +31,4 @@ class UserEditInfoForm(ModelForm):
         self.fields['first_name'] = CharField(initial=initial_values['first_name'], max_length=30)
         self.fields['last_name'] = CharField(initial=initial_values['last_name'], max_length=30)
         self.fields['bio'] = CharField(initial=initial_values['bio'], widget=Textarea(), required=False, max_length=400)
+

@@ -1,4 +1,3 @@
-import pytz
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -8,7 +7,6 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
-from django.views.generic.base import ContextMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, DeleteView, UpdateView
@@ -141,30 +139,15 @@ class UserEnterInfoView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class UserEditInfoView(LoginRequiredMixin, FormView):
-    form_class = UserEditInfoForm
+class UserEditInfoView(LoginRequiredMixin, UpdateView):
+    model = User
+    fields = ['first_name', 'last_name', 'bio', 'avatar']
     template_name = 'app/user_edit_profile.html'
+    context_object_name = 'user'
     login_url = reverse_lazy('app:handle_authentication')
 
-    def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-        if self.request.user.is_authenticated:
-            user = User.objects.get(email=self.request.user.email)
-            user.first_name = form.cleaned_data.get('first_name')
-            user.last_name = form.cleaned_data.get('last_name')
-            user.bio = form.cleaned_data.get('bio')
-            # user.avatar = form.files.get('avatar')
-            user.save()
-            self.success_url = reverse('app:profile', args=[user.id])
-        return super().form_valid(form)
-
-    def get_form_kwargs(self):
-        kwargs = super(UserEditInfoView, self).get_form_kwargs()
-        kwargs['initial_values'] = {'first_name': self.request.user.first_name,
-                                    'last_name': self.request.user.last_name,
-                                    'bio': self.request.user.bio}
-        return kwargs
+    def get_success_url(self):
+        return reverse("app:profile", args=[self.request.user.id])
 
 
 class UserProfile(LoginRequiredMixin, DetailView):
@@ -179,6 +162,17 @@ class UserProfile(LoginRequiredMixin, DetailView):
         context['auth_user'] = auth_user
         context['can_edit'] = True if auth_user.pk == page_user.id else False
         return context
+
+
+class UserAvatarUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    fields = ['avatar']
+    template_name = 'app/user_avatar_update.html'
+    context_object_name = 'user'
+    login_url = reverse_lazy('app:handle_authentication')
+
+    def get_success_url(self):
+        return reverse("app:profile", args=[self.request.user.id])
 
 
 class AddPostView(LoginRequiredMixin, CreateView):
