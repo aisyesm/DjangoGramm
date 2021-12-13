@@ -7,7 +7,7 @@ from PIL import Image
 
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, email, password=None):
+    def create_user(self, email, password=None, **kwargs):
         """
         Creates and saves a User with the given email and password.
         """
@@ -17,6 +17,12 @@ class MyUserManager(BaseUserManager):
         user = self.model(email=self.normalize_email(email))
 
         user.set_password(password)
+        if kwargs.get('is_active') is True:
+            user.is_active = True
+        if isinstance(kwargs.get('first_name'), str):
+            user.first_name = kwargs.get('first_name')
+        if isinstance(kwargs.get('last_name'), str):
+            user.last_name = kwargs.get('last_name')
         user.save(using=self._db)
         return user
 

@@ -22,7 +22,7 @@ from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
 from .models import User, Post
-from .forms import UserLoginForm, UserFullInfoForm, UserEditInfoForm, UserRegisterForm
+from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer
 
 
