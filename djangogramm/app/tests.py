@@ -1,3 +1,5 @@
+import re
+
 from django.test import TestCase, Client
 from django.core import mail
 
@@ -9,9 +11,6 @@ from .forms import UserLoginForm, UserRegisterForm
 class AuthenticationViewTestCase(TestCase):
     def setUp(self):
         self.c = Client()
-        self.user = User.objects.create_user(email='test1', password='test', is_active=True)
-        self.user_with_full_name = User.objects.create_user(email='test2', password='test', is_active=True,
-                                                            first_name='test', last_name='test')
 
     def test_get(self):
         """Renders correct view and template."""
@@ -20,10 +19,8 @@ class AuthenticationViewTestCase(TestCase):
         self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
         self.assertTemplateUsed(response=response, template_name='app/login.html')
 
-    def test_post(self):
-        """Login existing user or reload template with invalid credentials."""
-
-        # login with incorrect credentials
+    def test_login_wrong_credentials(self):
+        """Login with incorrect credentials."""
         data = {'email': 'incorrect', 'password': 'incorrect', 'proceed': 'login'}
         self.assertTrue(UserLoginForm(data=data).is_valid())
         response = self.c.post('/app/', data=data, follow=True)
@@ -32,15 +29,20 @@ class AuthenticationViewTestCase(TestCase):
         self.assertTemplateUsed(response=response, template_name='app/login.html')
         self.assertTrue(response.context.get('invalid_credentials'))
 
-        # login with correct credentials but without full info set
-        data = {'email': 'test1', 'password': 'test', 'proceed': 'login'}
+    def test_enter_info(self):
+        """Login user that does not have first_name and last_name set."""
+        user = User.objects.create_user(email='test1', password='test', is_active=True)
+        data = {'email': user.email, 'password': 'test', 'proceed': 'login'}
         response = self.c.post('/app/', data=data, follow=True, secure=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.resolver_match.func.__name__, UserEnterInfoView.as_view().__name__)
         self.assertTemplateUsed(response=response, template_name='app/user_enter_info.html')
 
-        # login with full info set
-        data = {'email': 'test2', 'password': 'test', 'proceed': 'login'}
+    def test_login(self):
+        """Login with full info set."""
+        user = User.objects.create_user(email='test2', password='test', is_active=True,
+                                        first_name='test', last_name='test')
+        data = {'email': user.email, 'password': 'test', 'proceed': 'login'}
         response = self.c.post('/app/', data=data, follow=True, secure=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.resolver_match.func.__name__, Feed.as_view().__name__)
@@ -50,8 +52,6 @@ class AuthenticationViewTestCase(TestCase):
 class RegisterViewTestCase(TestCase):
     def setUp(self):
         self.c = Client()
-        self.existing_user = User.objects.create_user(email='exists@gmail.com', password='test', is_active=True,
-                                                            first_name='test', last_name='test')
 
     def test_get(self):
         """Renders correct view and template."""
@@ -60,40 +60,56 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(response.resolver_match.func.__name__, Register.as_view().__name__)
         self.assertTemplateUsed(response=response, template_name='app/register.html')
 
-    def test_post(self):
-        """Register a new user."""
-
-        # try to register without confirming password
+    def test_confirm_password(self):
+        """Not providing a confirm password or providing a different value."""
         data = {'email': 'test', 'password': 'test', 'proceed': 'register'}
         self.assertFalse(UserRegisterForm(data=data).is_valid())
 
-        # try to register with confirmed password that does not match first password
         data = {'email': 'test@mail.ru', 'password': 'test', 'confirm_password': 'dont_match', 'proceed': 'register'}
         self.assertTrue(UserRegisterForm(data=data).is_valid())
         response = self.c.post('/app/register', data=data, follow=True, secure=True)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response=response, template_name='app/register.html')
         self.assertTrue(response.context.get('passwords_dont_match'))
 
-        # try to register with invalid email
+    def test_invalid_email(self):
+        """Try to register with invalid email."""
         data = {'email': 'test', 'password': 'test', 'confirm_password': 'test', 'proceed': 'register'}
         response = self.c.post('/app/register', data=data, follow=True, secure=True)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response=response, template_name='app/register.html')
         self.assertTrue(response.context.get('invalid_email'))
 
-        # try to register with already used email
-        data = {'email': self.existing_user.email, 'password': 'bla', 'confirm_password': 'bla', 'proceed': 'register'}
+    def test_already_registered(self):
+        """Try to register with already used email."""
+        user = User.objects.create_user(email='exists@gmail.com', password='test', is_active=True,
+                                        first_name='test', last_name='test')
+        data = {'email': user.email, 'password': 'bla', 'confirm_password': 'bla', 'proceed': 'register'}
         response = self.c.post('/app/register', data=data, follow=True, secure=True)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response=response, template_name='app/register.html')
         self.assertTrue(response.context.get('user_already_exist'))
 
-        # check if activation link was sent by e-email
+    def test_register_and_activate_user(self):
+        """Check if user can be registered and activated with an activation link from email."""
         data = {'email': 'test@mail.ru', 'password': 'test', 'confirm_password': 'test', 'proceed': 'register'}
         response = self.c.post('/app/register', data=data, follow=True, secure=True)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, 'Activate your DjangoGramm account.')
         self.assertTemplateUsed(response=response, template_name='app/acc_active_email.html')
         self.assertTemplateUsed(response=response, template_name='app/activation_link_sent.html')
+        user = User.objects.filter(email=data['email']).first()
+        self.assertIsNotNone(user)
+        self.assertFalse(user.is_active)
 
-
-
-
+        # lets activate user
+        pattern = r'app/activate/(\S+)/(\S+)'
+        activation_link = re.search(pattern, mail.outbox[0].body)
+        uidb64, token = activation_link.group(1), activation_link.group(2)
+        response = self.c.get(f'/app/activate/{uidb64}/{token}', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, UserEnterInfoView.as_view().__name__)
+        user = User.objects.filter(email=data['email']).first()
+        self.assertIsNotNone(user)
+        self.assertTrue(user.is_active)
