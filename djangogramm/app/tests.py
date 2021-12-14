@@ -113,3 +113,18 @@ class RegisterViewTestCase(TestCase):
         user = User.objects.filter(email=data['email']).first()
         self.assertIsNotNone(user)
         self.assertTrue(user.is_active)
+
+
+class LogoutViewTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    def test_logout(self):
+        """Log user out and redirect to home page."""
+        user = User.objects.create_user(email='test', password='test', is_active=True,
+                                        first_name='test', last_name='test')
+        self.c.login(email=user.email, password='test')
+        response = self.c.get('/app/logout', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/login.html')
