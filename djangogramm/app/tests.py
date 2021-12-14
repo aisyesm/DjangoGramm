@@ -1,11 +1,14 @@
+import os
 import re
+import shutil
 
 from django.test import TestCase, Client
 from django.core import mail
+from django.conf import settings
 
 from .models import User
-from .views import Authentication, UserEnterInfoView, Feed, Register
-from .forms import UserLoginForm, UserRegisterForm
+from .views import Authentication, UserEnterInfoView, Feed, Register, UserProfile
+from .forms import UserLoginForm, UserRegisterForm, UserFullInfoForm
 
 
 class AuthenticationViewTestCase(TestCase):
@@ -128,3 +131,51 @@ class LogoutViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
         self.assertTemplateUsed(response=response, template_name='app/login.html')
+
+
+class UserEnterInfoTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+        self.user = User.objects.create_user(email='test@mail.com', password='test', is_active=True)
+
+    def test_access_logged_in_only(self):
+        """Only logged-in users can access the view."""
+        user = User.objects.create_user(email='not_logged_in@mail.com', password='test', is_active=True)
+        response = self.c.get(f'/app/{user.pk}/enter_info', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/login.html')
+
+    def test_user_has_to_provide_first_and_last_names(self):
+        """Form cannot be submitted when first and last names are not provided."""
+        self.c.login(email=self.user.email, password='test')
+        data = {'proceed': 'continue'}
+        self.assertFalse(UserFullInfoForm(data=data).is_valid())
+        data['first_name'] = 'Test'
+        self.assertFalse(UserFullInfoForm(data=data).is_valid())
+        data['last_name'] = 'Test'
+        self.assertTrue(UserFullInfoForm(data=data).is_valid())
+
+    def test_enter_info_and_redirect(self):
+        """Make sure provided data was uploaded and added to user.
+        Then redirect to profile page."""
+        self.c.login(email=self.user.email, password='test')
+        with open('/Users/ais/Desktop/test.jpg', 'rb') as img:
+            data = {'first_name': 'Test', 'last_name': 'Test', 'bio': 'some bio for test', 'avatar': img}
+            response = self.c.post(f'/app/{self.user.pk}/enter_info', data=data, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.resolver_match.func.__name__, UserProfile.as_view().__name__)
+            self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
+            user = User.objects.filter(email=self.user.email).first()
+            self.assertEqual(user.first_name, 'Test')
+            self.assertEqual(user.last_name, 'Test')
+            self.assertEqual(user.bio, 'some bio for test')
+            self.assertIsNotNone(user.avatar)
+            pattern = r'(\d+)/avatar/(\S+)'
+            avatar_path = re.search(pattern, str(user.avatar))
+            self.assertIsNotNone(avatar_path)
+            user_id, file_name = avatar_path.group(1), avatar_path.group(2)
+            self.assertEqual(file_name, 'test.jpg')
+            for folder in os.listdir(settings.MEDIA_ROOT):
+                if folder == user_id:
+                    shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')

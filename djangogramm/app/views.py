@@ -4,7 +4,7 @@ from django.core.validators import validate_email
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
-from django.utils.encoding import force_bytes, force_text
+from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.views.generic.detail import DetailView
@@ -102,7 +102,7 @@ class Register(View):
 
 def activate(request, uidb64, token):
     try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
+        uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
@@ -195,7 +195,8 @@ class UserPostList(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, format=None):
+    @staticmethod
+    def get(request, format=None):
         # store received query params
         q_params = {
             'offset': request.GET.get('offset'),
@@ -207,8 +208,7 @@ class UserPostList(APIView):
             if val:
                 try:
                     q_params[param] = int(val)
-                except Exception as e:
-                    print(f'Caught exception while getting posts {e}')
+                except TypeError:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
 
         if q_params['user_id']:
