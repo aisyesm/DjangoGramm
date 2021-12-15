@@ -1,10 +1,14 @@
 import os
 import re
 import shutil
+import time
 
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase, Client
 from django.core import mail
 from django.conf import settings
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 from .models import User
 from .views import Authentication, UserEnterInfoView, Feed, Register, UserProfile
@@ -140,8 +144,7 @@ class UserEnterInfoTestCase(TestCase):
 
     def test_access_logged_in_only(self):
         """Only logged-in users can access the view."""
-        user = User.objects.create_user(email='not_logged_in@mail.com', password='test', is_active=True)
-        response = self.c.get(f'/app/{user.pk}/enter_info', follow=True)
+        response = self.c.get(f'/app/{self.user.pk}/enter_info', follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
         self.assertTemplateUsed(response=response, template_name='app/login.html')
@@ -179,3 +182,57 @@ class UserEnterInfoTestCase(TestCase):
             for folder in os.listdir(settings.MEDIA_ROOT):
                 if folder == user_id:
                     shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
+
+
+class UserEditInfoTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+        with open('/Users/ais/Desktop/test.jpg', 'rb') as img:
+            self.user = User.objects.create_user(email='test@mail.com', password='test', is_active=True,
+                                                 first_name='Test', last_name='Test', bio='Test', avatar=img)
+
+    def test_access_logged_in_only(self):
+        """Only logged-in users can access the view."""
+        response = self.c.get(f'/app/{self.user.pk}/edit_profile', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/login.html')
+
+    def test_user_has_to_provide_first_and_last_names(self):
+        """Form cannot be submitted when first and last names are not provided."""
+        self.c.login(email=self.user.email, password='test')
+        data = {'proceed': 'continue'}
+        response = self.c.post(f'/app/{self.user.pk}/edit_profile', data=data, follow=True)
+        self.assertTemplateUsed(response=response, template_name='app/user_edit_profile.html')
+        data['first_name'] = 'New'
+        data['last_name'] = 'New'
+        response = self.c.post(f'/app/{self.user.pk}/edit_profile', data=data, follow=True)
+        self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
+
+
+class MySeleniumTests(StaticLiveServerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.selenium = webdriver.Chrome()
+        cls.selenium.implicitly_wait(10)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
+        super().tearDownClass()
+
+    def test_cancel_returns_to_profile_page(self):
+        """When pressing Cancel button, user returns to his profile page."""
+        user = User.objects.create_user(email='test@gmail.com', password='test', is_active=True,
+                                        first_name='Test', last_name='Test')
+        self.selenium.get(f'{self.live_server_url}/app/')
+        self.selenium.find_element(By.ID, value='id_email').send_keys(user.email)
+        self.selenium.find_element(By.ID, value='id_password').send_keys('test')
+        self.selenium.find_element(By.NAME, value='proceed').click()
+        self.selenium.find_element(By.XPATH, value="//a[text()='My profile']").click()
+        self.selenium.find_element(By.CLASS_NAME, value='edit_button').click()
+        self.selenium.find_element(By.XPATH, value="//button[text()='Cancel']").click()
+        self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/{user.pk}/profile')
+
+
