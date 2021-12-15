@@ -149,6 +149,12 @@ class UserEditInfoView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse("app:profile", args=[self.request.user.id])
 
+    def get_form(self, form_class=None):
+        form = super(UserEditInfoView, self).get_form(form_class)
+        form.fields['first_name'].required = True
+        form.fields['last_name'].required = True
+        return form
+
 
 class UserProfile(LoginRequiredMixin, DetailView):
     model = User
