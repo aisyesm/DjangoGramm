@@ -209,6 +209,27 @@ class UserEditInfoTestCase(TestCase):
         response = self.c.post(f'/app/{self.user.pk}/edit_profile', data=data, follow=True)
         self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
 
+    def test_user_can_edit_profile(self):
+        """After submitting form user profile gets updated."""
+        self.c.login(email=self.user.email, password='test')
+        with open('/Users/ais/Desktop/test1.jpg', 'rb') as img:
+            data = {'first_name': 'New', 'last_name': 'New', 'bio': 'New', 'avatar': img, 'proceed': 'continue'}
+            response = self.c.post(f'/app/{self.user.pk}/edit_profile', data=data, follow=True)
+        self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
+        user = User.objects.filter(email=self.user.email).first()
+        self.assertEqual(user.first_name, 'New')
+        self.assertEqual(user.last_name, 'New')
+        self.assertEqual(user.bio, 'New')
+        self.assertIsNotNone(user.avatar)
+        pattern = r'(\d+)/avatar/(\S+)'
+        avatar_path = re.search(pattern, str(user.avatar))
+        self.assertIsNotNone(avatar_path)
+        user_id, file_name = avatar_path.group(1), avatar_path.group(2)
+        self.assertEqual(file_name, 'test1.jpg')
+        for folder in os.listdir(settings.MEDIA_ROOT):
+            if folder == user_id:
+                shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
+
 
 class MySeleniumTests(StaticLiveServerTestCase):
     @classmethod
