@@ -22,4 +22,4 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
 ]
 
-urlpatterns += format_suffix_patterns([path('posts/', views.UserPostList.as_view()),])
+urlpatterns += format_suffix_patterns([path('posts/', views.UserPostList.as_view(), name='posts')])

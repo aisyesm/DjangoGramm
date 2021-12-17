@@ -10,8 +10,11 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase, Client
 from django.core import mail
 from django.conf import settings
+from django.urls import reverse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from rest_framework.test import APITestCase, APIClient
+from rest_framework import status
 
 from .helpers import get_timedelta_for_post
 from .models import User, Post
@@ -337,6 +340,31 @@ class UserPostsTestCase(TestCase):
         for folder in os.listdir(settings.MEDIA_ROOT):
             if folder == str(self.user.pk):
                 shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
+
+
+class RestAPITestCase(APITestCase):
+    fixtures = ['users.json', 'posts.json']
+
+    def setUp(self) -> None:
+        self.client = APIClient()
+
+    def test_get_posts(self):
+        """
+        Ensure api and query params return correct json.
+        """
+        url = reverse('app:posts')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.client.login(email='test1@mail.com', password='test1')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 5)
+        response = self.client.get(url + '?start=1&offset=2', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        response = self.client.get(url + '?user_id=63', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
 
 
 class HelperFuncTestCase(unittest.TestCase):
