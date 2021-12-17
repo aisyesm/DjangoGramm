@@ -26,7 +26,6 @@ def get_timedelta_for_post(pub_date: datetime) -> str:
     elif diff.days > 7:
         day_of_month = pub_date.strftime('%d').lstrip('0')
         month = pub_date.strftime('%B')
-        year = pub_date.strftime('%Y')
-        res = f"{month} {day_of_month}" if diff.days < 365 else f"{month} {day_of_month}, {year}"
+        res = f"{month} {day_of_month}" if now.year == pub_date.year else f"{month} {day_of_month}, {pub_date.year}"
     res = res.upper()
     return res

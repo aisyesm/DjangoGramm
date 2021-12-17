@@ -3,17 +3,19 @@ import re
 import shutil
 import unittest
 
+from datetime import datetime, timedelta
+
+import pytz
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.core.files.images import ImageFile
 from django.test import TestCase, Client
 from django.core import mail
-from django.core.files import File
 from django.conf import settings
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+from .helpers import get_timedelta_for_post
 from .models import User, Post
-from .views import Authentication, UserEnterInfoView, Feed, Register, UserProfile, PostDetail, PostUpdateView
+from .views import Authentication, UserEnterInfoView, Feed, Register, UserProfile, PostDetail
 from .forms import UserLoginForm, UserRegisterForm, UserFullInfoForm
 
 
@@ -341,7 +343,32 @@ class HelperFuncTestCase(unittest.TestCase):
     """Unit test functions from helpers.py."""
 
     def test_get_timedelta_for_post(self):
-        pass
+        """get_timedelta_for_post returns correct publication date to show user."""
+        now = datetime.now(pytz.timezone('Asia/Oral'))
+        pub_date = now - timedelta(seconds=3)
+        self.assertEqual(get_timedelta_for_post(pub_date), 'SECONDS AGO')
+        pub_date = now - timedelta(seconds=30)
+        self.assertEqual(get_timedelta_for_post(pub_date), '30 SECONDS AGO')
+        pub_date = now - timedelta(seconds=60)
+        self.assertEqual(get_timedelta_for_post(pub_date), '1 MINUTE AGO')
+        pub_date = now - timedelta(seconds=360)
+        self.assertEqual(get_timedelta_for_post(pub_date), '6 MINUTES AGO')
+        pub_date = now - timedelta(seconds=3600)
+        self.assertEqual(get_timedelta_for_post(pub_date), '1 HOUR AGO')
+        pub_date = now - timedelta(seconds=7300)
+        self.assertEqual(get_timedelta_for_post(pub_date), '2 HOURS AGO')
+        pub_date = now - timedelta(days=1)
+        self.assertEqual(get_timedelta_for_post(pub_date), '1 DAY AGO')
+        pub_date = now - timedelta(days=3)
+        self.assertEqual(get_timedelta_for_post(pub_date), '3 DAYS AGO')
+        pub_date = now - timedelta(days=7)
+        self.assertEqual(get_timedelta_for_post(pub_date), '1 WEEK AGO')
+        pub_date = now - timedelta(days=60)
+        self.assertEqual(get_timedelta_for_post(pub_date),
+                         f"{pub_date.strftime('%B').upper()} {pub_date.strftime('%d').lstrip('0')}")
+        pub_date = now - timedelta(days=700)
+        self.assertEqual(get_timedelta_for_post(pub_date),
+                         f"{pub_date.strftime('%B').upper()} {pub_date.strftime('%d').lstrip('0')}, {pub_date.year}")
 
 
 class MySeleniumTests(StaticLiveServerTestCase):
