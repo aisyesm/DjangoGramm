@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import time
 import unittest
 
 from datetime import datetime, timedelta
@@ -358,13 +359,13 @@ class RestAPITestCase(APITestCase):
         self.client.login(email='test1@mail.com', password='test1')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(len(response.data), 20)
         response = self.client.get(url + '?start=1&offset=2', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-        response = self.client.get(url + '?user_id=63', format='json')
+        response = self.client.get(url + '?user_id=65', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data), 15)
 
 
 class HelperFuncTestCase(unittest.TestCase):
@@ -400,6 +401,8 @@ class HelperFuncTestCase(unittest.TestCase):
 
 
 class MySeleniumTests(StaticLiveServerTestCase):
+    fixtures = ['users.json', 'posts.json']
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -413,23 +416,37 @@ class MySeleniumTests(StaticLiveServerTestCase):
 
     def test_cancel_returns_to_profile_page(self):
         """When pressing Cancel button, user returns to his profile page."""
-        user = User.objects.create_user(email='test@gmail.com', password='test', is_active=True,
-                                        first_name='Test', last_name='Test')
         self.selenium.get(f'{self.live_server_url}/app/')
-        self.selenium.find_element(By.ID, value='id_email').send_keys(user.email)
-        self.selenium.find_element(By.ID, value='id_password').send_keys('test')
+        self.selenium.find_element(By.ID, value='id_email').send_keys('test1@mail.com')
+        self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
         self.selenium.find_element(By.NAME, value='proceed').click()
         self.selenium.find_element(By.XPATH, value="//a[text()='My profile']").click()
         self.selenium.find_element(By.CLASS_NAME, value='edit_button').click()
         self.selenium.find_element(By.XPATH, value="//button[text()='Cancel']").click()
-        self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/{user.pk}/profile')
+        self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/65/profile')
 
     def test_user_profile_posts_load_on_scroll(self):
+        """Implement after deployment."""
         pass
+        # self.selenium.get(f'{self.live_server_url}/app/')
+        # self.selenium.find_element(By.ID, value='id_email').send_keys('test3@mail.com')
+        # self.selenium.find_element(By.ID, value='id_password').send_keys('test3')
+        # self.selenium.find_element(By.NAME, value='proceed').click()
+        # self.selenium.find_element(By.XPATH, value="//a[text()='My profile']").click()
+        # time.sleep(60)
+        # posts = self.selenium.find_element(By.XPATH, value="//div[@class='post_area']")
+        # print(posts.size)
 
     def test_feed_posts_load_on_scroll(self):
+        """Implement after deployment."""
         pass
 
     def test_my_profile_link_redirects_to_logged_in_user(self):
-        """From another user's profile and feed."""
-        pass
+        """Press My Profile from another user's profile."""
+        self.selenium.get(f'{self.live_server_url}/app/')
+        self.selenium.find_element(By.ID, value='id_email').send_keys('test1@mail.com')
+        self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
+        self.selenium.find_element(By.NAME, value='proceed').click()
+        self.selenium.get(f'{self.live_server_url}/app/66/profile')
+        self.selenium.find_element(By.XPATH, value="//a[text()='My profile']").click()
+        self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/65/profile')
