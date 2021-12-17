@@ -7,9 +7,9 @@ import pytz
 
 def get_timedelta_for_post(pub_date: datetime) -> str:
     """Returns Instagram like post time from datetime object."""
-
     now = datetime.now(pytz.timezone('Asia/Oral'))
     diff = now - pub_date
+    res = 'undefined'  # in case something goes wrong
     if diff.days == 0:
         if diff.seconds >= 3600:
             hours_ago = diff.seconds // 3600

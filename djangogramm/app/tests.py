@@ -1,17 +1,19 @@
 import os
 import re
 import shutil
-import time
+import unittest
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.files.images import ImageFile
 from django.test import TestCase, Client
 from django.core import mail
+from django.core.files import File
 from django.conf import settings
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-from .models import User
-from .views import Authentication, UserEnterInfoView, Feed, Register, UserProfile
+from .models import User, Post
+from .views import Authentication, UserEnterInfoView, Feed, Register, UserProfile, PostDetail, PostUpdateView
 from .forms import UserLoginForm, UserRegisterForm, UserFullInfoForm
 
 
@@ -163,7 +165,7 @@ class UserEnterInfoTestCase(TestCase):
         """Make sure provided data was uploaded and added to user.
         Then redirect to profile page."""
         self.c.login(email=self.user.email, password='test')
-        with open('/Users/ais/Desktop/test.jpg', 'rb') as img:
+        with open(f'{settings.MEDIA_ROOT}/test.jpg', 'rb') as img:
             data = {'first_name': 'Test', 'last_name': 'Test', 'bio': 'some bio for test', 'avatar': img}
             response = self.c.post(f'/app/{self.user.pk}/enter_info', data=data, follow=True)
             self.assertEqual(response.status_code, 200)
@@ -187,7 +189,7 @@ class UserEnterInfoTestCase(TestCase):
 class UserEditInfoTestCase(TestCase):
     def setUp(self):
         self.c = Client()
-        with open('/Users/ais/Desktop/test.jpg', 'rb') as img:
+        with open(f'{settings.MEDIA_ROOT}/test.jpg', 'rb') as img:
             self.user = User.objects.create_user(email='test@mail.com', password='test', is_active=True,
                                                  first_name='Test', last_name='Test', bio='Test', avatar=img)
 
@@ -212,7 +214,7 @@ class UserEditInfoTestCase(TestCase):
     def test_user_can_edit_profile(self):
         """After submitting form user profile gets updated."""
         self.c.login(email=self.user.email, password='test')
-        with open('/Users/ais/Desktop/test1.jpg', 'rb') as img:
+        with open(f'{settings.MEDIA_ROOT}/test1.jpg', 'rb') as img:
             data = {'first_name': 'New', 'last_name': 'New', 'bio': 'New', 'avatar': img, 'proceed': 'continue'}
             response = self.c.post(f'/app/{self.user.pk}/edit_profile', data=data, follow=True)
         self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
@@ -229,6 +231,117 @@ class UserEditInfoTestCase(TestCase):
         for folder in os.listdir(settings.MEDIA_ROOT):
             if folder == user_id:
                 shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
+
+
+class UserProfileTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+        self.user1 = User.objects.create_user(email='test1@mail.com', password='test1', is_active=True,
+                                              first_name='Test1', last_name='Test1')
+        self.user2 = User.objects.create_user(email='test2@mail.com', password='test2', is_active=True,
+                                              first_name='Test2', last_name='Test2')
+
+    def test_access_to_profile_logged_in_only(self):
+        """Only logged-in users can access the view."""
+        response = self.c.get(f'/app/{self.user1.pk}/profile', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/login.html')
+
+    def test_user_can_control_only_own_profile(self):
+        """User cannot see Add Post, Edit Profile on someone else's profile."""
+        self.c.login(email=self.user1.email, password='test1')
+        response = self.c.get(f'/app/{self.user1.pk}/profile', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, UserProfile.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
+        self.assertTrue(response.context.get('can_edit'))
+        response = self.c.get(f'/app/{self.user2.pk}/profile', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
+        self.assertFalse(response.context.get('can_edit'))
+
+
+class UserPostsTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+        self.user = User.objects.create_user(email='test@mail.com', password='test', is_active=True,
+                                             first_name='Test', last_name='Test')
+
+    def test_access_to_posts_logged_in_only(self):
+        """Only logged-in users can access the post views."""
+        response = self.c.get(f'/app/{self.user.pk}/add_post', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/login.html')
+        response = self.c.get(f'/app/p/1', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/login.html')
+        response = self.c.get(f'/app/p/1/delete', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/login.html')
+        response = self.c.get(f'/app/p/1/update', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/login.html')
+
+    def test_user_can_add_and_view_post(self):
+        """User can add post and see its detail view."""
+        self.c.login(email=self.user.email, password='test')
+        with open(f'{settings.MEDIA_ROOT}/test1.jpg', 'rb') as img:
+            data = {'caption': 'Wow caption', 'image': img}
+            response = self.c.post(f'/app/{self.user.pk}/add_post', data=data, follow=True)
+        self.assertEqual(len(self.user.post_set.all()), 1)
+        self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
+
+        post = Post.objects.filter(caption='Wow caption').first()
+        response = self.c.get(f"/app/p/{post.pk}", follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, PostDetail.as_view().__name__)
+        for folder in os.listdir(settings.MEDIA_ROOT):
+            if folder == str(self.user.pk):
+                shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
+
+    def test_user_can_update_post(self):
+        """User can change post caption."""
+        self.c.login(email=self.user.email, password='test')
+        with open(f'{settings.MEDIA_ROOT}/test1.jpg', 'rb') as img:
+            data = {'caption': 'Wow caption', 'image': img}
+            self.c.post(f'/app/{self.user.pk}/add_post', data=data, follow=True)
+        self.assertEqual(len(self.user.post_set.all()), 1)
+        post = Post.objects.filter(caption='Wow caption').first()
+        response = self.c.post(f'/app/p/{post.pk}/update', {'caption': 'New caption'}, follow=True)
+        self.assertTemplateUsed(response=response, template_name='app/post_detail.html')
+        post = Post.objects.get(id=post.pk)
+        self.assertEqual(post.caption, 'New caption')
+
+        for folder in os.listdir(settings.MEDIA_ROOT):
+            if folder == str(self.user.pk):
+                shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
+
+    def test_user_can_delete_post(self):
+        """User can delete his post."""
+        self.c.login(email=self.user.email, password='test')
+        with open(f'{settings.MEDIA_ROOT}/test1.jpg', 'rb') as img:
+            data = {'caption': 'Wow caption', 'image': img}
+            self.c.post(f'/app/{self.user.pk}/add_post', data=data, follow=True)
+        self.assertEqual(len(self.user.post_set.all()), 1)
+        post = Post.objects.filter(caption='Wow caption').first()
+        response = self.c.post(f'/app/p/{post.pk}/delete', follow=True)
+        self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
+        self.assertEqual(len(self.user.post_set.all()), 0)
+        for folder in os.listdir(settings.MEDIA_ROOT):
+            if folder == str(self.user.pk):
+                shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
+
+
+class HelperFuncTestCase(unittest.TestCase):
+    """Unit test functions from helpers.py."""
+
+    def test_get_timedelta_for_post(self):
+        pass
 
 
 class MySeleniumTests(StaticLiveServerTestCase):
@@ -256,4 +369,12 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.find_element(By.XPATH, value="//button[text()='Cancel']").click()
         self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/{user.pk}/profile')
 
+    def test_user_profile_posts_load_on_scroll(self):
+        pass
 
+    def test_feed_posts_load_on_scroll(self):
+        pass
+
+    def test_my_profile_link_redirects_to_logged_in_user(self):
+        """From another user's profile and feed."""
+        pass

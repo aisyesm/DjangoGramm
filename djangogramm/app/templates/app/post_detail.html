@@ -14,7 +14,9 @@
         <div class="post-user">
             <div class="avatar">
                 <a href="{% url 'app:profile' post.user.id %}">
-                    <img src="{{ post.user.avatar.url }}">
+                    {% if post.user.avatar %}
+                        <img src="{{ post.user.avatar.url }}">
+                    {% endif %}
                 </a>
             </div>
             <div class="author">
