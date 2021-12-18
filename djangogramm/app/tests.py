@@ -426,20 +426,42 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/65/profile')
 
     def test_user_profile_posts_load_on_scroll(self):
-        """Implement after deployment."""
-        pass
-        # self.selenium.get(f'{self.live_server_url}/app/')
-        # self.selenium.find_element(By.ID, value='id_email').send_keys('test3@mail.com')
-        # self.selenium.find_element(By.ID, value='id_password').send_keys('test3')
-        # self.selenium.find_element(By.NAME, value='proceed').click()
-        # self.selenium.find_element(By.XPATH, value="//a[text()='My profile']").click()
-        # time.sleep(60)
-        # posts = self.selenium.find_element(By.XPATH, value="//div[@class='post_area']")
-        # print(posts.size)
+        """
+        Initially loads last 9 posts on user profile.
+        Loads next 9 or remaining posts (if user has less than 9) on each scroll to the bottom.
+        """
+        self.selenium.get(f'{self.live_server_url}/app/')
+        self.selenium.find_element(By.ID, value='id_email').send_keys('test1@mail.com')
+        self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
+        self.selenium.find_element(By.NAME, value='proceed').click()
+        self.selenium.find_element(By.XPATH, value="//a[text()='My profile']").click()
+        posts = self.selenium.find_elements(By.CLASS_NAME, value='post-area')
+        self.assertEqual(len(posts), 9)
+        self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+        time.sleep(5)  # wait for posts to load
+        posts = self.selenium.find_elements(By.CLASS_NAME, value='post-area')
+        self.assertEqual(len(posts), 15)
 
     def test_feed_posts_load_on_scroll(self):
-        """Implement after deployment."""
-        pass
+        """
+        Initially loads last 7 posts on feed.
+        Loads next 7 or remaining posts (if less than 7 left) on each scroll to the bottom.
+        """
+        self.selenium.get(f'{self.live_server_url}/app/')
+        self.selenium.find_element(By.ID, value='id_email').send_keys('test1@mail.com')
+        self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
+        self.selenium.find_element(By.NAME, value='proceed').click()
+        time.sleep(5)  # wait for posts to load
+        posts = self.selenium.find_elements(By.CLASS_NAME, value='post')
+        self.assertEqual(len(posts), 7)
+        self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+        time.sleep(5)
+        posts = self.selenium.find_elements(By.CLASS_NAME, value='post')
+        self.assertEqual(len(posts), 14)
+        self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+        time.sleep(5)
+        posts = self.selenium.find_elements(By.CLASS_NAME, value='post')
+        self.assertEqual(len(posts), 20)
 
     def test_my_profile_link_redirects_to_logged_in_user(self):
         """Press My Profile from another user's profile."""
