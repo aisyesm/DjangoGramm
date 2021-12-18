@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
 })
 
 function getPosts (start, offset) {
-    fetch(`http://127.0.0.1:8000/app/posts?offset=${offset}&start=${start}`)
+    fetch(`${window.location.origin}/app/posts?offset=${offset}&start=${start}`)
     .then (response => response.json())
     .then (json => showPosts(json))
 }
@@ -37,9 +37,11 @@ function showPosts (posts) {
         const divAvatar = document.createElement('div')
         divAvatar.classList.add('avatar')
         const userAvatarLink = document.createElement('a')
-        userAvatarLink.href = `http://127.0.0.1:8000/app/${post.user}/profile`
+        userAvatarLink.href = `${window.location.origin}/app/${post.user}/profile`
         const imgAvatar = document.createElement('img')
-        imgAvatar.src = post.user_avatar
+        if (post.user_avatar) {
+            imgAvatar.src = post.user_avatar
+        }
         userAvatarLink.append(imgAvatar)
         divAvatar.append(userAvatarLink)
         divUserPost.append(divAvatar)
@@ -47,7 +49,7 @@ function showPosts (posts) {
         const divAuthor = document.createElement('div')
         divAuthor.classList.add('author')
         const userLink = document.createElement('a')
-        userLink.href = `http://127.0.0.1:8000/app/${post.user}/profile`
+        userLink.href = `${window.location.origin}/app/${post.user}/profile`
         userLink.textContent = `${post.first_name} ${post.last_name}`
         divAuthor.append(userLink)
         divUserPost.append(divAuthor)

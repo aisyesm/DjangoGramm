@@ -199,7 +199,7 @@ class UserPostList(APIView):
     """
     View class to return posts for UserProfile or Feed views.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]  # comment out during selenium tests!!
 
     @staticmethod
     def get(request, format=None):

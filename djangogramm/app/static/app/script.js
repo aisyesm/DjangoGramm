@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
 })
 
 function getPosts (start, offset, user_id) {
-    fetch(`http://127.0.0.1:8000/app/posts?user_id=${user_id}&offset=${offset}&start=${start}`)
+    fetch(`${window.location.origin}/app/posts?user_id=${user_id}&offset=${offset}&start=${start}`)
     .then (response => response.json())
     .then (json => showPosts(json))
 }
@@ -32,7 +32,7 @@ function showPosts (posts) {
         const div = document.createElement('div')
         div.classList.add("post-area");
         const hyperlink = document.createElement('a')
-        hyperlink.href = `http://127.0.0.1:8000/app/p/${post.id}`
+        hyperlink.href = `${window.location.origin}/app/p/${post.id}`
         const img = document.createElement('img')
         img.src = post.image
         hyperlink.appendChild(img)
