@@ -9,13 +9,13 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-import environ
+import os
 
 from pathlib import Path
 
 # Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
+from dotenv import load_dotenv
+load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -90,11 +90,11 @@ WSGI_APPLICATION = 'djangogramm.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("DB_NAME"),
-        'USER': env("DB_USER"),
-        'PASSWORD': env("DB_PASSWORD"),
-        'HOST': env("DB_HOST"),
-        'PORT': env("DB_PORT"),
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PASSWORD"),
+        'HOST': os.getenv("DB_HOST"),
+        'PORT': os.getenv("DB_PORT"),
     }
 }
 
@@ -146,10 +146,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'app.User'
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = env("EMAIL_HOST")
-EMAIL_HOST_USER = env("DJANGOGRAMM_EMAIL")
-EMAIL_HOST_PASSWORD = env("DJANGOGRAMM_EMAIL_PASSWORD")
-EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_HOST_USER = os.getenv("DJANGOGRAMM_EMAIL")
+EMAIL_HOST_PASSWORD = os.getenv("DJANGOGRAMM_EMAIL_PASSWORD")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
