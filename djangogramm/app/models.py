@@ -71,7 +71,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def has_perm(self, perm, obj=None):
-        # Simplest possible answer: Yes, always
         return True
 
     def has_module_perms(self, app_label):

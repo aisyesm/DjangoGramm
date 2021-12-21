@@ -11,7 +11,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, DeleteView, UpdateView
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse, reverse_lazy
@@ -170,12 +170,15 @@ class UserProfile(LoginRequiredMixin, DetailView):
         return context
 
 
-class UserAvatarUpdateView(LoginRequiredMixin, UpdateView):
+class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     model = User
     fields = ['avatar']
     template_name = 'app/user_avatar_update.html'
     context_object_name = 'user'
     login_url = reverse_lazy('app:handle_authentication')
+
+    def test_func(self):
+        return self.request.user.pk == self.get_object().pk
 
     def get_success_url(self):
         return reverse("app:profile", args=[self.request.user.id])

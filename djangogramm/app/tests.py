@@ -238,6 +238,16 @@ class UserEditInfoTestCase(TestCase):
             if folder == user_id:
                 shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
 
+    def test_user_cannot_edit_other_user_avatar(self):
+        """Authenticated user cannot edit other user's avatar."""
+        logged_in_user = User.objects.create_user(email='logged@mail.com', password='logged', is_active=True,
+                                                  first_name='Logged', last_name='Logged')
+        self.c.login(email=logged_in_user.email, password='logged')
+        with open(f'{settings.MEDIA_ROOT}/test1.jpg', 'rb') as img:
+            data = {'avatar': img, 'submit': 'Update'}
+            response = self.c.post(f'/app/{self.user.pk}/change_avatar', data=data, follow=True)
+        self.assertEqual(response.status_code, 403)
+
 
 class UserProfileTestCase(TestCase):
     def setUp(self):

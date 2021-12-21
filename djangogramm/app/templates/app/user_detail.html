@@ -18,11 +18,17 @@
         </div>
         <div class="user_info">
             <div class="avatar">
-                <a href="{% url 'app:change_avatar' auth_user.id %}">
+                {% if can_edit %}
+                    <a href="{% url 'app:change_avatar' auth_user.id %}">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}">
+                        {% endif %}
+                    </a>
+                {% else %}
                     {% if user.avatar %}
-                        <img src="{{ user.avatar.url }}">
+                            <img src="{{ user.avatar.url }}">
                     {% endif %}
-                </a>
+                {% endif %}
             </div>
             <div class="user_details">
                 <div class="full_name_and_edit">
