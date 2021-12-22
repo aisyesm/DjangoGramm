@@ -9,7 +9,7 @@ h4 {
 .navbar {
     display: flex;
     gap: 10px;
-    justify-content: end;
+    justify-content: flex-end;
     flex-direction: row;
 }
 
