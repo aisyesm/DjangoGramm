@@ -1,3 +1,5 @@
+import re
+
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -184,11 +186,17 @@ class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
         return reverse("app:profile", args=[self.request.user.id])
 
 
-class AddPostView(LoginRequiredMixin, CreateView):
+class AddPostView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
     model = Post
     fields = ['image', 'caption']
     template_name_suffix = '_create_form'
     login_url = reverse_lazy('app:handle_authentication')
+
+    def test_func(self):
+        pattern = r'app/(\d+)/add_post'
+        activation_link = re.search(pattern, self.request.path)
+        user_id = activation_link.group(1)
+        return user_id == str(self.request.user.pk)
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -249,24 +257,31 @@ class PostDetail(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         pub_date = self.get_object().pub_date
         context['post_timedelta'] = get_timedelta_for_post(pub_date)
+        context['can_edit'] = True if self.request.user.pk == self.get_object().user.pk else False
         return context
 
 
-class PostDeleteView(LoginRequiredMixin, DeleteView):
+class PostDeleteView(UserPassesTestMixin, LoginRequiredMixin, DeleteView):
     model = Post
     context_object_name = 'post'
     login_url = reverse_lazy('app:handle_authentication')
+
+    def test_func(self):
+        return self.request.user.pk == self.get_object().user.pk
 
     def get_success_url(self):
         return reverse_lazy('app:profile', kwargs={'pk': self.object.user.id})
 
 
-class PostUpdateView(LoginRequiredMixin, UpdateView):
+class PostUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     model = Post
     fields = ['caption']
     template_name_suffix = '_update_form'
     context_object_name = 'post'
     login_url = reverse_lazy('app:handle_authentication')
+
+    def test_func(self):
+        return self.request.user.pk == self.get_object().user.pk
 
 
 class Feed(LoginRequiredMixin, ListView):

@@ -41,8 +41,10 @@
         </div>
     </div>
     <div class="options">
-        <button type="button" onclick="location.href=`{% url 'app:post_update' post.id %}`">Edit</button>
-        <button type="button" onclick="location.href=`{% url 'app:post_delete' post.id %}`">Delete</button>
+        {% if can_edit %}
+            <button type="button" onclick="location.href=`{% url 'app:post_update' post.id %}`">Edit</button>
+            <button type="button" onclick="location.href=`{% url 'app:post_delete' post.id %}`">Delete</button>
+        {% endif %}
     </div>
 </body>
 </html>
