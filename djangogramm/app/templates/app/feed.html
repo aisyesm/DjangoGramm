@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'app/feed.css' %}">
+    <title>DjangoGramm</title>
+</head>
+<body>
+    <div class="feed-container">
+        <div class="navbar">
+            <div class="navbar-item">
+                <a href="{% url 'app:feed' %}">Feed</a>
+            </div>
+            <div class="navbar-item">
+                <a href="{% url 'app:profile' auth_user.id %}">My profile</a>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'app/feed.js' %}" total_num_posts={{ total_num_posts }}></script>
+</body>
+</html>

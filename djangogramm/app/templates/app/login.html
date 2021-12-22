@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+    <title>DjangoGramm</title>
+</head>
+<body>
+    <div class="form_authentication">
+        <form action="{% url 'app:handle_authentication' %}"  method="POST">
+            {% csrf_token %}
+            <div class="login-form">
+                <div class="email-password">
+                    <div class="field">
+                        <div>Your e-mail</div>
+                        <div>{{ form.email }}</div>
+                    </div>
+                    <div class="field">
+                        <div>Password</div>
+                        <div>{{ form.password }}</div>
+                    </div>
+                </div>
+                <div class="buttons_container">
+                    <button name="proceed" type="submit" value="login">Login</button>
+                </div>
+            </div>
+            {% if invalid_credentials %}
+                <p class="error">Invalid username or password</p>
+            {% endif %}
+        </form>
+        <div class="new-user">
+            <p>Don't have an account? <a href="{% url 'app:register' %}">Sign up</a></p>
+        </div>
+    </div>
+</body>
+</html>

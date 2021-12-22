@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+    <title>DjangoGramm</title>
+</head>
+<body>
+    <div class="profile_container">
+        <div class="navbar">
+            <div class="navbar-item">
+                <a href="{% url 'app:feed' %}">Feed</a>
+            </div>
+            <div class="navbar-item">
+                <a href="{% url 'app:profile' auth_user.id %}">My profile</a>
+            </div>
+        </div>
+        <div class="user_info">
+            <div class="avatar">
+                {% if can_edit %}
+                    <a href="{% url 'app:change_avatar' auth_user.id %}">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}">
+                        {% endif %}
+                    </a>
+                {% else %}
+                    {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}">
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="user_details">
+                <div class="full_name_and_edit">
+                    <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+                </div>
+                <p class="bio">{{ user.bio }}</p>
+                {% if can_edit %}
+                    <button type="button" class="add_post_button"
+                                onclick="location.href=`{% url 'app:add_post' user.id %}`">Add Post</button>
+                    <button type="button" class="edit_button"
+                                onclick="location.href=`{% url 'app:edit_profile' user.id %}`">Edit Profile</button>
+                    <button type="button" class="logout"
+                                onclick="location.href=`{% url 'app:logout' %}`">Logout</button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="user_posts"></div>
+    </div>
+    <script src="{% static 'app/script.js' %}" user_id={{ user.id }} post_count={{ user.post_set.count }}></script>
+</body>
+</html>

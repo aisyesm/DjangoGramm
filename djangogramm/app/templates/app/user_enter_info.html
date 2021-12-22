@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+    <title>DjangoGramm</title>
+</head>
+<body>
+    <h1>Welcome to DjangoGramm</h1>
+    <h4>Please enter some basic info about you</h4>
+    <h4>{{ user.email }}</h4>
+    <div class="form_enter_info">
+        <form enctype="multipart/form-data" action="{% url 'app:enter_info' user.id %}"  method="POST">
+            {% csrf_token %}
+            <div class="login-form">
+                {{ form }} </br>
+            </div>
+            <div class="buttons_container">
+                <button name="proceed" type="submit" value="continue">Continue</button>
+                <button type="button" onclick="location.href=`{% url 'app:logout'%}`">Logout</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

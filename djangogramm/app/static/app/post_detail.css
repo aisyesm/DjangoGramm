@@ -1,0 +1,59 @@
+.post {
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+}
+.post-user {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+}
+
+.post-user img {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+.post-image img{
+    width: 500px;
+}
+
+.author {
+    font-weight: bold;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+}
+
+.author:hover {
+    text-decoration: underline;
+}
+
+.author a{
+    color: black;
+    text-decoration: none;
+}
+
+.caption {
+    max-width: 500px;
+    word-wrap: break-word;
+}
+
+.caption p {
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  color: #181818;
+}
+
+p { margin:0; }
+
+.options {
+    margin-top:20px;
+}
+
+.date p {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    color: grey;
+}
