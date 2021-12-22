@@ -122,10 +122,16 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('app:handle_authentication'))
 
 
-class UserEnterInfoView(LoginRequiredMixin, FormView):
+class UserEnterInfoView(UserPassesTestMixin, LoginRequiredMixin, FormView):
     form_class = UserFullInfoForm
     template_name = 'app/user_enter_info.html'
     login_url = reverse_lazy('app:handle_authentication')
+
+    def test_func(self):
+        pattern = r'app/(\d+)/enter_info'
+        url = re.search(pattern, self.request.path)
+        user_id = url.group(1)
+        return user_id == str(self.request.user.pk)
 
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
@@ -141,12 +147,15 @@ class UserEnterInfoView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class UserEditInfoView(LoginRequiredMixin, UpdateView):
+class UserEditInfoView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     model = User
     fields = ['first_name', 'last_name', 'bio', 'avatar']
     template_name = 'app/user_edit_profile.html'
     context_object_name = 'user'
     login_url = reverse_lazy('app:handle_authentication')
+
+    def test_func(self):
+        return self.request.user.pk == self.get_object().pk
 
     def get_success_url(self):
         return reverse("app:profile", args=[self.request.user.id])
@@ -194,8 +203,8 @@ class AddPostView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
 
     def test_func(self):
         pattern = r'app/(\d+)/add_post'
-        activation_link = re.search(pattern, self.request.path)
-        user_id = activation_link.group(1)
+        url = re.search(pattern, self.request.path)
+        user_id = url.group(1)
         return user_id == str(self.request.user.pk)
 
     def form_valid(self, form):
