@@ -1,0 +1,42 @@
+#id_email, #id_password {
+  background-color: #Eaf0f8;
+  padding: 1rem 1rem;
+  border: none;
+  font-size: 0.95rem!important;
+  font-weight: light;
+}
+
+#sign-in-btn {
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem!important;
+}
+
+#passHelp {
+    text-align: right;
+}
+
+#line-wrap {
+  display: flex;
+  flex-direction: row;
+}
+
+#line-wrap:before, #line-wrap:after{
+  content: "";
+  flex: 1 1;
+  border-top: 1.5px solid #Dadada;
+  margin: 0.74rem 0;
+}
+
+#line-wrap:before {
+  margin-right: 12px;
+}
+
+#line-wrap:after {
+  margin-left: 12px;
+}
+
+.reg-link  {
+    font-size: 18px;
+    text-decoration: none;
+    font-weight: bold;
+}
