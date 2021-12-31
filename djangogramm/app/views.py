@@ -97,7 +97,7 @@ class Register(View):
                         [to_email],
                         fail_silently=False,
                     )
-                    return render(request, "app/activation_link_sent.html")
+                    return render(request, "app/activation_link_sent.html", {'email': form.cleaned_data['email']})
 
         return render(request, self.template_name, {'form': form})
 
