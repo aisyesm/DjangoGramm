@@ -3,8 +3,8 @@ from .models import User
 
 
 class UserLoginForm(Form):
-    email = CharField(label='', max_length=100, widget=TextInput(attrs={'placeholder': 'name@domain.com'}))
-    password = CharField(label='', max_length=100, widget=PasswordInput())
+    email = CharField(label='', max_length=100, widget=TextInput(attrs={'placeholder': 'Enter your email'}))
+    password = CharField(label='', max_length=100, widget=PasswordInput(attrs={'placeholder': 'Password'}))
 
 
 class UserRegisterForm(Form):
