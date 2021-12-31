@@ -11,16 +11,20 @@ class UserLoginForm(Form):
 
 
 class UserRegisterForm(Form):
-    email = CharField(label='', max_length=100, widget=EmailInput(attrs={'placeholder': 'name@domain.com'}))
-    password = CharField(label='', max_length=100, widget=PasswordInput())
-    confirm_password = CharField(label='', max_length=100, widget=PasswordInput())
+    email = CharField(label='', max_length=100, widget=EmailInput(attrs={'placeholder': 'Enter your email',
+                                                                         'class': 'form-control'}))
+    password = CharField(label='', max_length=100, widget=PasswordInput(attrs={'placeholder': 'Password',
+                                                                               'class': 'form-control'}))
+    confirm_password = CharField(label='', max_length=100,
+                                 widget=PasswordInput(attrs={'placeholder': 'Confirm password',
+                                                             'class': 'form-control'}))
 
 
 class UserFullInfoForm(Form):
     first_name = CharField(label='First name', max_length=30)
     last_name = CharField(label='Last name', max_length=30)
     bio = CharField(label='Bio', required=False, max_length=400,
-                          widget=Textarea(attrs={'placeholder': 'Tell the world something about yourself...'}))
+                    widget=Textarea(attrs={'placeholder': 'Tell the world something about yourself...'}))
     avatar = ImageField(label='Photo', required=False)
 
 
@@ -34,4 +38,3 @@ class UserEditInfoForm(ModelForm):
         self.fields['first_name'] = CharField(initial=initial_values['first_name'], max_length=30)
         self.fields['last_name'] = CharField(initial=initial_values['last_name'], max_length=30)
         self.fields['bio'] = CharField(initial=initial_values['bio'], widget=Textarea(), required=False, max_length=400)
-

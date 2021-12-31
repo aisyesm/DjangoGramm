@@ -1,4 +1,4 @@
-#id_email, #id_password {
+#id_email, #id_password, #id_confirm_password {
   background-color: #Eaf0f8;
   padding: 1rem 1rem;
   border: none;
@@ -6,7 +6,7 @@
   font-weight: light;
 }
 
-#sign-in-btn {
+#action-btn {
     padding: 0.9rem 1rem;
     font-size: 0.95rem!important;
 }
@@ -35,7 +35,7 @@
   margin-left: 12px;
 }
 
-.reg-link  {
+.link  {
     font-size: 18px;
     text-decoration: none;
     font-weight: bold;
