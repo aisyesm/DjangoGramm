@@ -1,4 +1,4 @@
-from django.forms import Form, CharField, ImageField, ModelForm, Textarea, PasswordInput, EmailInput
+from django.forms import Form, CharField, ImageField, ModelForm, Textarea, PasswordInput, EmailInput, TextInput, FileInput
 from .models import User
 
 
@@ -21,11 +21,15 @@ class UserRegisterForm(Form):
 
 
 class UserFullInfoForm(Form):
-    first_name = CharField(label='First name', max_length=30)
-    last_name = CharField(label='Last name', max_length=30)
+    first_name = CharField(label='', max_length=30, widget=TextInput(attrs={'placeholder': 'e.g. John',
+                                                                            'class': 'form-control'}))
+    last_name = CharField(label='', max_length=30, widget=TextInput(attrs={'placeholder': 'e.g. Smith',
+                                                                           'class': 'form-control'}))
     bio = CharField(label='Bio', required=False, max_length=400,
-                    widget=Textarea(attrs={'placeholder': 'Tell the world something about yourself...'}))
-    avatar = ImageField(label='Photo', required=False)
+                    widget=Textarea(attrs={'placeholder': 'Tell the world something about yourself...',
+                                           'class': 'form-control',
+                                           'rows': '5'}))
+    avatar = ImageField(label='Photo', required=False, widget=FileInput(attrs={'style': 'display: none;'}))
 
 
 class UserEditInfoForm(ModelForm):
