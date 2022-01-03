@@ -4,11 +4,13 @@
   border: none;
   font-size: 0.95rem!important;
   font-weight: light;
+  border-radius: 10px;
 }
 
 #action-btn {
     padding: 0.9rem 1rem;
     font-size: 0.95rem!important;
+    border-radius: 10px;
 }
 
 #passHelp {
@@ -39,4 +41,21 @@
     font-size: 18px;
     text-decoration: none;
     font-weight: bold;
+}
+
+#google, #apple, #facebook {
+    border-radius: 10px;
+}
+
+#apple, #facebook {
+    font-size: 2.3em;
+}
+
+#facebook {
+    color: #3b5998;
+}
+
+#google {
+    padding-top: 0.6504rem;
+    padding-bottom: 0.6504rem;
 }
