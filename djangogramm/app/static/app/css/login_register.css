@@ -71,3 +71,14 @@
     padding-top: 0.6504rem;
     padding-bottom: 0.6504rem;
 }
+
+#output {
+    width: 112px;
+    height: 112px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+#output:hover{
+    filter: brightness(75%);
+}

@@ -29,7 +29,8 @@ class UserFullInfoForm(Form):
                     widget=Textarea(attrs={'placeholder': 'Tell the world something about yourself...',
                                            'class': 'form-control',
                                            'rows': '5'}))
-    avatar = ImageField(label='Photo', required=False, widget=FileInput(attrs={'style': 'display: none;'}))
+    avatar = ImageField(label='Photo', required=False, widget=FileInput(attrs={'style': 'display: none;',
+                                                                               'onchange': 'loadFile(event)'}))
 
 
 class UserEditInfoForm(ModelForm):
