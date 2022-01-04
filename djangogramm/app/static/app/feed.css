@@ -12,16 +12,11 @@
     gap: 25px;
 }
 
-.post {
-  border: thin solid grey;
-  border-radius: 10px;
-}
-
-.post-user {
+.post-author {
    display: flex;
    align-items: center;
    gap: 7px;
-   padding: 5px 0 5px 5px;
+   padding: 10px 0 10px 10px;
 }
 
 .avatar img {
@@ -42,8 +37,8 @@
 }
 
 .author a{
-    color: black;
     text-decoration: none;
+    color: black;
 }
 
 .photo img {
@@ -54,16 +49,20 @@
 }
 
 .caption, .date {
-  padding-left: 5px;
+  padding-left: 10px;
 }
 
 .caption p {
+  margin: 0;
+  padding: 10px 0;
   font-family: 'Nunito', sans-serif;
   font-size: 15px;
   color: #181818;
 }
 
 .date p {
+    margin: 0;
+    padding-bottom: 15px;
     font-family: 'Nunito', sans-serif;
     font-size: 10px;
     color: grey;
