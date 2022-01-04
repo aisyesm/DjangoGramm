@@ -1,18 +1,3 @@
-h1 {
-    text-align:center;
-}
-
-h4 {
-    text-align:center;
-}
-
-.navbar {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    flex-direction: row;
-}
-
 .form_authentication {
     display: flex;
     align-items: center;
@@ -69,55 +54,5 @@ form {
     color: red;
 }
 
-.profile_container {
-    width: 1140px;
-    margin: 0 auto;
-}
 
-.user_info {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    grid-template-rows: 300px;
-}
-
-.user_posts {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: 373.33px;
-    grid-gap: 10px;
-}
-
-.user_posts img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 7px;
-}
-
-.post-area:hover{
-    filter: brightness(50%);
-}
-
-.avatar {
-    padding: 30px;
-    display: flex;
-    justify-content: center;
-}
-
-.avatar img {
-    width: 200px;
-    height: 200px;
-    border-radius: 100%;
-    object-fit: cover;
-}
-
-.full_name_and_edit {
-    display: flex;
-    align-items: center;
-}
-
-.bio {
-   word-wrap: break-word;
-   width: 450px;
-}
 
