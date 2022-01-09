@@ -1,0 +1,5 @@
+#post-btn, #cancel-btn {
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem!important;
+    border-radius: 10px;
+}

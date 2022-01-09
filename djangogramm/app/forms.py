@@ -1,5 +1,5 @@
 from django.forms import Form, CharField, ImageField, ModelForm, Textarea, PasswordInput, EmailInput, TextInput, FileInput
-from .models import User
+from .models import User, Post
 
 
 class UserLoginForm(Form):
@@ -43,3 +43,13 @@ class UserEditInfoForm(ModelForm):
         self.fields['first_name'] = CharField(initial=initial_values['first_name'], max_length=30)
         self.fields['last_name'] = CharField(initial=initial_values['last_name'], max_length=30)
         self.fields['bio'] = CharField(initial=initial_values['bio'], widget=Textarea(), required=False, max_length=400)
+
+
+class AddPostForm(ModelForm):
+    class Meta:
+        model = Post
+        fields = ['image', 'caption']
+        widgets = {
+            'image': FileInput(attrs={'class': 'form-control form-control-lg'}),
+            'caption': TextInput(attrs={'class': 'form-control'})
+        }

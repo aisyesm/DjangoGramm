@@ -24,7 +24,7 @@ from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
 from .models import User, Post
-from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm
+from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer
 
 
@@ -197,7 +197,7 @@ class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
 
 class AddPostView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['image', 'caption']
+    form_class = AddPostForm
     template_name_suffix = '_create_form'
     login_url = reverse_lazy('app:handle_authentication')
 
@@ -213,6 +213,11 @@ class AddPostView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse("app:profile", args=[self.request.user.id])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['auth_user'] = self.request.user
+        return context
 
 
 class UserPostList(APIView):
