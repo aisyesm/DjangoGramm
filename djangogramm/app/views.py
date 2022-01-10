@@ -272,6 +272,7 @@ class PostDetail(LoginRequiredMixin, DetailView):
         pub_date = self.get_object().pub_date
         context['post_timedelta'] = get_timedelta_for_post(pub_date)
         context['can_edit'] = True if self.request.user.pk == self.get_object().user.pk else False
+        context['auth_user'] = self.request.user
         return context
 
 

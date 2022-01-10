@@ -1,50 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    {% load static %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{% static 'app/post_detail.css' %}">
-    <title>DjangoGramm</title>
-</head>
-<body>
-    <div class="post">
-        <div class="post-user">
-            <div class="avatar">
-                <a href="{% url 'app:profile' post.user.id %}">
-                    {% if post.user.avatar %}
-                        <img src="{{ post.user.avatar.url }}">
-                    {% endif %}
-                </a>
-            </div>
-            <div class="author">
+{% extends "app/base_navbar.html" %}
+
+{% block head %}
+{% load static %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{% static 'app/post_detail.css' %}">
+{{ block.super }}
+{% endblock %}
+
+{% block below-navbar %}
+<div class="post">
+    <div class="post-user">
+        <div class="avatar">
+            <a href="{% url 'app:profile' post.user.id %}">
+                {% if post.user.avatar %}
+                    <img src="{{ post.user.avatar.url }}">
+                {% endif %}
+            </a>
+        </div>
+        <div class="author">
+            <a href="{% url 'app:profile' post.user.id %}">
+                {{ post.user.first_name }} {{ post.user.last_name }}
+            </a>
+        </div>
+    </div>
+    <div class="post-image"><img src="{{ post.image.url }}"></div>
+    <div class="caption">
+        <p>
+            <span class="author">
                 <a href="{% url 'app:profile' post.user.id %}">
                     {{ post.user.first_name }} {{ post.user.last_name }}
                 </a>
-            </div>
-        </div>
-        <div class="post-image"><img src="{{ post.image.url }}"></div>
-        <div class="caption">
-            <p>
-                <span class="author">
-                    <a href="{% url 'app:profile' post.user.id %}">
-                        {{ post.user.first_name }} {{ post.user.last_name }}
-                    </a>
-                </span>
-                {{ post.caption }}
-            </p>
-        </div>
-        <div class="date">
-            <p>{{ post_timedelta }}</p>
-        </div>
+            </span>
+            {{ post.caption }}
+        </p>
     </div>
-    <div class="options">
-        {% if can_edit %}
-            <button type="button" onclick="location.href=`{% url 'app:post_update' post.id %}`">Edit</button>
-            <button type="button" onclick="location.href=`{% url 'app:post_delete' post.id %}`">Delete</button>
-        {% endif %}
+    <div class="date">
+        <p>{{ post_timedelta }}</p>
     </div>
-</body>
-</html>
+</div>
+<div class="options">
+    {% if can_edit %}
+        <button type="button" onclick="location.href=`{% url 'app:post_update' post.id %}`">Edit</button>
+        <button type="button" onclick="location.href=`{% url 'app:post_delete' post.id %}`">Delete</button>
+    {% endif %}
+</div>
+{% endblock %}
