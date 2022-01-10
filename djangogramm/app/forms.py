@@ -36,13 +36,13 @@ class UserFullInfoForm(Form):
 class UserEditInfoForm(ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'bio']
-
-    def __init__(self, initial_values, *args, **kwargs):
-        super(UserEditInfoForm, self).__init__(*args, **kwargs)
-        self.fields['first_name'] = CharField(initial=initial_values['first_name'], max_length=30)
-        self.fields['last_name'] = CharField(initial=initial_values['last_name'], max_length=30)
-        self.fields['bio'] = CharField(initial=initial_values['bio'], widget=Textarea(), required=False, max_length=400)
+        fields = ['first_name', 'last_name', 'bio', 'avatar']
+        widgets = {
+            'first_name': TextInput(attrs={'class': 'form-control'}),
+            'last_name': TextInput(attrs={'class': 'form-control'}),
+            'bio': Textarea(attrs={'class': 'form-control', 'rows': '5'}),
+            'avatar': FileInput(attrs={'style': 'display: none;', 'onchange': 'loadFile(event)'})
+        }
 
 
 class AddPostForm(ModelForm):

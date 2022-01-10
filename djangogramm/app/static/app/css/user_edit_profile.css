@@ -1,0 +1,27 @@
+.upload  {
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.upload:hover  {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#output {
+    width: 112px;
+    height: 112px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+#output:hover{
+    filter: brightness(75%);
+    cursor: pointer;
+}
+
+#submit-btn, #cancel-btn {
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem!important;
+    border-radius: 10px;
+}

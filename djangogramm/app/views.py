@@ -24,7 +24,7 @@ from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
 from .models import User, Post
-from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm
+from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer
 
 
@@ -149,7 +149,7 @@ class UserEnterInfoView(UserPassesTestMixin, LoginRequiredMixin, FormView):
 
 class UserEditInfoView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     model = User
-    fields = ['first_name', 'last_name', 'bio', 'avatar']
+    form_class = UserEditInfoForm
     template_name = 'app/user_edit_profile.html'
     context_object_name = 'user'
     login_url = reverse_lazy('app:handle_authentication')
@@ -165,6 +165,11 @@ class UserEditInfoView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
         form.fields['first_name'].required = True
         form.fields['last_name'].required = True
         return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['auth_user'] = self.request.user
+        return context
 
 
 class UserProfile(LoginRequiredMixin, DetailView):

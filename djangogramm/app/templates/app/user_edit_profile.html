@@ -1,41 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'app/user_edit_profile.css' %}">
-    <title>DjangoGramm</title>
-</head>
-<body>
-    <h1>DjangoGramm</h1>
-    <div class="form_enter_info">
-        <form enctype="multipart/form-data" action="{% url 'app:edit_profile' user.id %}"  method="POST">
-            {% csrf_token %}
-            <div class="form-container">
-                <div class="fields">
-                    <div class="field">
-                        <div>{{ form.first_name.label }}</div>
-                        <div>{{ form.first_name }}</div>
-                    </div>
-                    <div class="field">
-                        <div>{{ form.last_name.label }}</div>
-                        <div>{{ form.last_name }}</div>
-                    </div>
-                    <div class="field">
-                        <div>{{ form.bio.label }}</div>
-                        <div>{{ form.bio }}</div>
-                    </div>
-                    <div>
-                        <div>Avatar</div>
-                        <div>{{ form.avatar }}</div>
-                    </div>
-                </div>
-                <div class="buttons_container">
-                    <button name="proceed" type="submit" value="continue">Submit</button>
-                    <button type="button" onclick="location.href=`{% url 'app:profile' user.id %}`">Cancel</button>
-                </div>
+{% extends "app/base_navbar.html" %}
+
+{% block head %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'app/css/user_edit_profile.css' %}">
+{{ block.super }}
+{% endblock %}
+
+{% block below-navbar %}
+<div class="col d-flex flex-column align-items-center mx-auto mb-5">
+    <div class="mb-3"><h3>Edit Profile</h3></div>
+    <form enctype="multipart/form-data" action="{% url 'app:edit_profile' user.id %}"  method="POST" class="w-100" style="max-width: 420px">
+        {% csrf_token %}
+        <div class="mb-4 text-center">
+            <div class="mb-3">
+                <label>
+                    {{ form.avatar }}
+                    <img id="output" src="{{ user.avatar.url }}">
+                </label>
             </div>
-        </form>
-    </div>
-</body>
-</html>
+            <div>
+                <label>
+                    {{ form.avatar }}
+                    <a class="upload">Upload photo</a>
+                </label>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="id_first_name" class="form-label">First Name</label>
+            {{ form.first_name }}
+        </div>
+        <div class="mb-3">
+            <label for="id_last_name" class="form-label">Last Name</label>
+            {{ form.last_name }}
+        </div>
+        <div class="mb-5">
+            <label for="id_bio" class="form-label">Bio</label>
+            {{ form.bio }}
+        </div>
+        <div class="row gx-2">
+            <div class="col-6">
+                <button class="btn btn-secondary btn-lg w-100 fw-bold fs-6" id="cancel-btn" type="button" onclick="location.href=`{% url 'app:profile' user.id %}`">
+                    Cancel
+                </button>
+            </div>
+            <div class="col-6">
+                <button class="btn btn-primary btn-lg w-100 fw-bold fs-6" id="submit-btn" type="submit">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+var loadFile = function(event) {
+    var output = document.getElementById('output');
+    output.src = URL.createObjectURL(event.target.files[0]);
+    output.onload = function() {
+      URL.revokeObjectURL(output.src) // free memory
+    }
+};
+{% endblock %}
