@@ -4,14 +4,6 @@
     justify-content: flex-end;
 }
 
-.feed-container {
-    width: 650px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
 .post-author {
    display: flex;
    align-items: center;
