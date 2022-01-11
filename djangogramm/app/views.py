@@ -3,7 +3,7 @@ import re
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
@@ -291,6 +291,9 @@ class PostDeleteView(UserPassesTestMixin, LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('app:profile', kwargs={'pk': self.object.user.id})
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseNotFound('<h1>Page not found</h1>')
 
 
 class PostUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
