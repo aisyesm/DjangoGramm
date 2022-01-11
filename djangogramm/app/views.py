@@ -306,6 +306,9 @@ class PostUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     def test_func(self):
         return self.request.user.pk == self.get_object().user.pk
 
+    def get(self, request, *args, **kwargs):
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+
 
 class Feed(LoginRequiredMixin, ListView):
     model = Post
