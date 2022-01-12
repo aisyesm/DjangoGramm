@@ -187,7 +187,7 @@ class UserProfile(LoginRequiredMixin, DetailView):
         return context
 
 
-class UserAvatarUpdateView(LoginRequiredMixin, FormView):
+class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, FormView):
     form_class = UserAvatarUpdateForm
     login_url = reverse_lazy('app:handle_authentication')
 
@@ -203,6 +203,12 @@ class UserAvatarUpdateView(LoginRequiredMixin, FormView):
 
     def get(self, request, *args, **kwargs):
         return HttpResponseNotAllowed(['GET'])
+
+    def test_func(self):
+        pattern = r'app/(\d+)/change_avatar'
+        url = re.search(pattern, self.request.path)
+        user_id = url.group(1)
+        return user_id == str(self.request.user.id)
 
 
 class AddPostView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
