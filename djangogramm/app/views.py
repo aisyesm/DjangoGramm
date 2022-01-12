@@ -201,6 +201,15 @@ class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, FormView):
             self.success_url = reverse('app:profile', args=[user.id])
         return super().form_valid(form)
 
+    def post(self, request, *args, **kwargs):
+        delete_avatar = request.POST.get('delete_avatar')
+        if delete_avatar and delete_avatar == 'true':
+            user = User.objects.get(email=self.request.user.email)
+            user.avatar = None
+            user.save()
+            return HttpResponseRedirect(reverse('app:profile', args=[user.id]))
+        return super().post(request, args, kwargs)
+
     def get(self, request, *args, **kwargs):
         return HttpResponseNotAllowed(['GET'])
 

@@ -10,11 +10,9 @@
     <div class="py-5 d-flex flex-row justify-content-center">
         {% if can_edit %}
             {% if user.avatar %}
-                <a href="{% url 'app:change_avatar' auth_user.id %}">
-<!--                    <div data-bs-toggle="modal" data-bs-target="#editAvatarModal">-->
+                <div data-bs-toggle="modal" data-bs-target="#editAvatarModal">
                     <img src="{{ user.avatar.url }}" class="avatar-img">
-<!--                    </div>-->
-                </a>
+                </div>
             {% else %}
                 <label for="id_avatar">
                     <img src="{% static 'app/empty_user.jpg' %}" class="avatar-img" style="cursor: pointer;"
@@ -44,21 +42,30 @@
 <!-- Modal Edit Avatar-->
 <div class="modal fade" id="editAvatarModal" tabindex="-1" aria-labelledby="editAvatarModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editAvatarModalLabel">Edit photo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content" style="border-radius: 12px;">
+            <div class="modal-header d-flex flex-column align-items-center">
+                <h5 class="modal-title" id="editAvatarModalLabel">Change Profile Photo</h5>
             </div>
-            <form method="post" enctype="multipart/form-data" action="{% url 'app:change_avatar' auth_user.id %}">{% csrf_token %}
-                <div class="modal-body">
-<!--                    <input type="checkbox" name="avatar-clear" id="avatar-clear_id">-->
-<!--                    <input type="file" name="avatar" accept="image/*" id="id_avatar">-->
-                </div>
-                <div class="modal-footer" style="border-top: none;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update</button>
-                </div>
-            </form>
+            <div class="modal-body d-flex flex-column" style="padding: 0;">
+                <label for="id_avatar_nonempty">
+                    <div class="border-bottom py-3 text-primary fw-bold" style="text-align: center; cursor: pointer;">
+                        Upload Photo
+                    </div>
+                </label>
+                <form method="post" enctype="multipart/form-data" id="form_nonempty_img" class="border-bottom py-3"
+                      action="{% url 'app:change_avatar' auth_user.id %}" style="text-align: center;">
+                    {% csrf_token %}
+                    <input type="file" name="avatar" accept="image/*" id="id_avatar_nonempty" style="display: none;">
+                    <button type="submit" class="text-danger fw-bold" name="delete_avatar"
+                            value="true" style="background: none; border: none;">
+                        Remove Current Photo
+                    </button>
+                </form>
+                <button type="button" class="py-3" style="background: none; border: none;"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -71,8 +78,13 @@
 {% block script %}
 <script src="{% static 'app/js/profile_page.js' %}" user_id={{ user.id }} post_count={{ user.post_set.count }}></script>
 <script>
-    document.getElementById("id_avatar").onchange = function() {
-        document.getElementById("form_empty_img").submit();
+    if (document.getElementById("id_avatar")) {
+        document.getElementById("id_avatar").onchange = function() {
+            document.getElementById("form_empty_img").submit();
+        };
+    };
+    document.getElementById("id_avatar_nonempty").onchange = function() {
+        document.getElementById("form_nonempty_img").submit();
     };
 </script>
 {% endblock %}
