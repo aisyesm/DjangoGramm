@@ -3,7 +3,7 @@ import re
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseNotAllowed
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
@@ -24,7 +24,8 @@ from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
 from .models import User, Post
-from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm
+from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
+    UserAvatarUpdateForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer
 
 
@@ -186,18 +187,22 @@ class UserProfile(LoginRequiredMixin, DetailView):
         return context
 
 
-class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
-    model = User
-    fields = ['avatar']
-    template_name = 'app/user_avatar_update.html'
-    context_object_name = 'user'
+class UserAvatarUpdateView(LoginRequiredMixin, FormView):
+    form_class = UserAvatarUpdateForm
     login_url = reverse_lazy('app:handle_authentication')
 
-    def test_func(self):
-        return self.request.user.pk == self.get_object().pk
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        if self.request.user.is_authenticated:
+            user = User.objects.get(email=self.request.user.email)
+            user.avatar = form.files.get('avatar')
+            user.save()
+            self.success_url = reverse('app:profile', args=[user.id])
+        return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse("app:profile", args=[self.request.user.id])
+    def get(self, request, *args, **kwargs):
+        return HttpResponseNotAllowed(['GET'])
 
 
 class AddPostView(UserPassesTestMixin, LoginRequiredMixin, CreateView):

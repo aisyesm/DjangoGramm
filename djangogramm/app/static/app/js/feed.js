@@ -43,6 +43,9 @@ function showPosts (posts) {
         if (post.user_avatar) {
             imgAvatar.src = post.user_avatar
         }
+        else {
+            imgAvatar.src = "/static/app/empty_user.jpg"
+        }
         userAvatarLink.append(imgAvatar)
         divAvatar.append(userAvatarLink)
         divAuthorPost.append(divAvatar)

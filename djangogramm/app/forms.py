@@ -33,6 +33,10 @@ class UserFullInfoForm(Form):
                                                                                'onchange': 'loadFile(event)'}))
 
 
+class UserAvatarUpdateForm(Form):
+    avatar = ImageField(required=True)
+
+
 class UserEditInfoForm(ModelForm):
     class Meta:
         model = User
