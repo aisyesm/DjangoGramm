@@ -57,7 +57,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     first_name = models.CharField(blank=True, max_length=30)
     last_name = models.CharField(blank=True, max_length=30)
-    bio = models.TextField(blank=True, max_length=400)
+    bio = models.TextField(blank=True, max_length=70)
     avatar = models.ImageField(null=True, blank=True, upload_to=user_avatar_path)
 
     is_active = models.BooleanField(default=False)

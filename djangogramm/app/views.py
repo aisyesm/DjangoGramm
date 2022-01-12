@@ -3,7 +3,7 @@ import re
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseNotAllowed
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
@@ -24,7 +24,8 @@ from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
 from .models import User, Post
-from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm
+from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
+    UserAvatarUpdateForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer
 
 
@@ -97,7 +98,7 @@ class Register(View):
                         [to_email],
                         fail_silently=False,
                     )
-                    return render(request, "app/activation_link_sent.html")
+                    return render(request, "app/activation_link_sent.html", {'email': form.cleaned_data['email']})
 
         return render(request, self.template_name, {'form': form})
 
@@ -149,7 +150,7 @@ class UserEnterInfoView(UserPassesTestMixin, LoginRequiredMixin, FormView):
 
 class UserEditInfoView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     model = User
-    fields = ['first_name', 'last_name', 'bio', 'avatar']
+    form_class = UserEditInfoForm
     template_name = 'app/user_edit_profile.html'
     context_object_name = 'user'
     login_url = reverse_lazy('app:handle_authentication')
@@ -166,6 +167,11 @@ class UserEditInfoView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
         form.fields['last_name'].required = True
         return form
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['auth_user'] = self.request.user
+        return context
+
 
 class UserProfile(LoginRequiredMixin, DetailView):
     model = User
@@ -181,23 +187,42 @@ class UserProfile(LoginRequiredMixin, DetailView):
         return context
 
 
-class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
-    model = User
-    fields = ['avatar']
-    template_name = 'app/user_avatar_update.html'
-    context_object_name = 'user'
+class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, FormView):
+    form_class = UserAvatarUpdateForm
     login_url = reverse_lazy('app:handle_authentication')
 
-    def test_func(self):
-        return self.request.user.pk == self.get_object().pk
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        if self.request.user.is_authenticated:
+            user = User.objects.get(email=self.request.user.email)
+            user.avatar = form.files.get('avatar')
+            user.save()
+            self.success_url = reverse('app:profile', args=[user.id])
+        return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse("app:profile", args=[self.request.user.id])
+    def post(self, request, *args, **kwargs):
+        delete_avatar = request.POST.get('delete_avatar')
+        if delete_avatar and delete_avatar == 'true':
+            user = User.objects.get(email=self.request.user.email)
+            user.avatar = None
+            user.save()
+            return HttpResponseRedirect(reverse('app:profile', args=[user.id]))
+        return super().post(request, args, kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseNotAllowed(['GET'])
+
+    def test_func(self):
+        pattern = r'app/(\d+)/change_avatar'
+        url = re.search(pattern, self.request.path)
+        user_id = url.group(1)
+        return user_id == str(self.request.user.id)
 
 
 class AddPostView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['image', 'caption']
+    form_class = AddPostForm
     template_name_suffix = '_create_form'
     login_url = reverse_lazy('app:handle_authentication')
 
@@ -213,6 +238,11 @@ class AddPostView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse("app:profile", args=[self.request.user.id])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['auth_user'] = self.request.user
+        return context
 
 
 class UserPostList(APIView):
@@ -267,6 +297,7 @@ class PostDetail(LoginRequiredMixin, DetailView):
         pub_date = self.get_object().pub_date
         context['post_timedelta'] = get_timedelta_for_post(pub_date)
         context['can_edit'] = True if self.request.user.pk == self.get_object().user.pk else False
+        context['auth_user'] = self.request.user
         return context
 
 
@@ -281,6 +312,9 @@ class PostDeleteView(UserPassesTestMixin, LoginRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('app:profile', kwargs={'pk': self.object.user.id})
 
+    def get(self, request, *args, **kwargs):
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+
 
 class PostUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     model = Post
@@ -291,6 +325,9 @@ class PostUpdateView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
 
     def test_func(self):
         return self.request.user.pk == self.get_object().user.pk
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseNotFound('<h1>Page not found</h1>')
 
 
 class Feed(LoginRequiredMixin, ListView):

@@ -1,26 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
-    <title>DjangoGramm</title>
-</head>
-<body>
-    <h1>Welcome to DjangoGramm</h1>
-    <h4>Please enter some basic info about you</h4>
-    <h4>{{ user.email }}</h4>
-    <div class="form_enter_info">
-        <form enctype="multipart/form-data" action="{% url 'app:enter_info' user.id %}"  method="POST">
-            {% csrf_token %}
-            <div class="login-form">
-                {{ form }} </br>
+{% extends "app/base.html" %}
+
+{% block head %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'app/css/login_register.css' %}">
+<script src="https://kit.fontawesome.com/9822aa20bd.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+ <div class="container">
+    <div class="row min-vh-100">
+        <div class="col-12 col-md-5 col-xl-7 d-flex flex-column justify-content-center align-items-center">
+            <div class="d-flex flex-column">
+                <h1 class="display-4">Welcome to</h1>
+                <h1 class="display-4 mb-5">DjangoGramm</h1>
+                <h4 class="text-wrap">Please enter some basic info about you</h4>
+                <div class="mb-5"><span class="link">{{ user.email }}</span></div>
             </div>
-            <div class="buttons_container">
-                <button name="proceed" type="submit" value="continue">Continue</button>
-                <button type="button" onclick="location.href=`{% url 'app:logout'%}`">Logout</button>
-            </div>
-        </form>
+        </div>
+        <div class="col-12 col-md-7 col-xl-5 d-flex flex-column justify-content-center align-items-center">
+
+            <form enctype="multipart/form-data" action="{% url 'app:enter_info' user.id %}"
+                  method="POST" class="w-75" style="max-width: 500px">
+                {% csrf_token %}
+                <div class="mb-4 text-center">
+                    <div class="mb-3">
+                        <label>
+                            {{ form.avatar }}
+                            <img id="output" src="{% static 'app/empty_user.jpg' %}">
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            {{ form.avatar }}
+                            <a class="sign-out">Upload photo</a>
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_first_name" class="form-label">First Name</label>
+                    {{ form.first_name }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_last_name" class="form-label">Last Name</label>
+                    {{ form.last_name }}
+                </div>
+                <div class="mb-5">
+                    <label for="id_bio" class="form-label">Bio</label>
+                    {{ form.bio }}
+                </div>
+                <button class="btn btn-primary btn-lg w-100 fw-bold fs-6 mb-4" id="action-btn"
+                        name="proceed" type="submit" value="continue">
+                    Continue
+                </button>
+                <div class="w-100 mb-5" style="text-align: right;">
+                    <a href="{% url 'app:logout'%}" class="sign-out">
+                        <i class="fas fa-sign-out-alt" style="color: #0d6efd;"></i> Sign out
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-</body>
-</html>
+ </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    var loadFile = function(event) {
+        var output = document.getElementById('output');
+        output.src = URL.createObjectURL(event.target.files[0]);
+        output.onload = function() {
+          URL.revokeObjectURL(output.src) // free memory
+        }
+    };
+</script>
+{% endblock %}
+

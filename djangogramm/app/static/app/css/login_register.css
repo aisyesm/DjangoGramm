@@ -1,0 +1,84 @@
+#id_email, #id_password,
+#id_confirm_password, #id_first_name,
+#id_last_name, #id_bio {
+  background-color: #Eaf0f8;
+  padding: 1rem 1rem;
+  border: none;
+  font-size: 0.95rem!important;
+  font-weight: light;
+  border-radius: 10px;
+}
+
+#action-btn {
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem!important;
+    border-radius: 10px;
+}
+
+#passHelp {
+    text-align: right;
+}
+
+#line-wrap {
+  display: flex;
+  flex-direction: row;
+}
+
+#line-wrap:before, #line-wrap:after{
+  content: "";
+  flex: 1 1;
+  border-top: 1.5px solid #Dadada;
+  margin: 0.74rem 0;
+}
+
+#line-wrap:before {
+  margin-right: 12px;
+}
+
+#line-wrap:after {
+  margin-left: 12px;
+}
+
+.link  {
+    font-size: 18px;
+    text-decoration: none;
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.sign-out  {
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.sign-out:hover  {
+    text-decoration: underline;
+}
+
+#google, #apple, #facebook {
+    border-radius: 10px;
+}
+
+#apple, #facebook {
+    font-size: 2.3em;
+}
+
+#facebook {
+    color: #3b5998;
+}
+
+#google {
+    padding-top: 0.6504rem;
+    padding-bottom: 0.6504rem;
+}
+
+#output {
+    width: 112px;
+    height: 112px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+#output:hover{
+    filter: brightness(75%);
+}

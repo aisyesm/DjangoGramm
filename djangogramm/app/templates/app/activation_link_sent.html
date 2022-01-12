@@ -1,10 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>DjangoGramm</title>
-</head>
-<body>
-  <h5>Activation link was sent to your email</h5>
-</body>
-</html>
+{% extends "app/base.html" %}
+{% block head %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'app/css/login_register.css' %}">
+<script src="https://kit.fontawesome.com/9822aa20bd.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row min-vh-100">
+        <div class="col-12 d-flex flex-column align-items-center">
+            <h1 class="display-2">Activate Account</h1>
+            <div>
+                <p>
+                    An activation email was sent to <div class="fw-bold text-center">{{ email }}</div>
+                </p>
+            </div>
+            <div>
+                <p>Please click the link in the email to activate your account</p>
+            </div>
+            <div style="font-size: 3em; color: #0d6efd;">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <div><p>Got no email?</p></div>
+            <div><a href="" class="link">Resend E-Mail</a></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

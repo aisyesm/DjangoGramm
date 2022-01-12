@@ -1,14 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>DjangoGramm</title>
-</head>
-<body>
-    <form enctype="multipart/form-data" method="post">{% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Save">
-        <button type="button" onclick="location.href=`{% url 'app:profile' user.id %}`">Cancel</button>
+{% extends "app/base_navbar.html" %}
+
+{% block head %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'app/css/add_post.css' %}">
+{{ block.super }}
+{% endblock %}
+
+{% block below-navbar %}
+<div class="col d-flex flex-column mx-auto align-items-center mb-5">
+    <form enctype="multipart/form-data" method="post" class="w-100" style="max-width: 420px">{% csrf_token %}
+        <div class="mb-4">
+              <label for="id_image" class="form-label">Image:</label>
+              {{ form.image}}
+        </div>
+        <div class="mb-5">
+            <label for="id_caption" class="form-label">Caption:</label>
+            {{ form.caption }}
+        </div>
+        <div class="row gx-2">
+            <div class="col-6">
+                <button class="btn btn-secondary btn-lg w-100 fw-bold fs-6" id="cancel-btn" type="button"
+                        onclick="location.href=`{% url 'app:feed' %}`">
+                    Cancel
+                </button>
+            </div>
+            <div class="col-6">
+                <button class="btn btn-primary btn-lg w-100 fw-bold fs-6" id="post-btn" type="submit">
+                    Post
+                </button>
+            </div>
+        </div>
     </form>
-</body>
-</html>
+</div>
+{% endblock %}

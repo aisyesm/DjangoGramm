@@ -26,13 +26,14 @@ function getPosts (start, offset) {
 }
 
 function showPosts (posts) {
-    const userPosts = document.querySelector('.feed-container')
+    const container = document.querySelector('.posts')
     posts.forEach(post => {
         const divPost = document.createElement('div')
-        divPost.classList.add('post');
+        divPost.classList.add('card');
+        divPost.style = 'border-radius: 10px; margin-bottom: 20px;'
 
-        const divUserPost = document.createElement('div')
-        divUserPost.classList.add('post-user')
+        const divAuthorPost = document.createElement('div')
+        divAuthorPost.classList.add('post-author')
 
         const divAvatar = document.createElement('div')
         divAvatar.classList.add('avatar')
@@ -42,9 +43,12 @@ function showPosts (posts) {
         if (post.user_avatar) {
             imgAvatar.src = post.user_avatar
         }
+        else {
+            imgAvatar.src = "/static/app/empty_user.jpg"
+        }
         userAvatarLink.append(imgAvatar)
         divAvatar.append(userAvatarLink)
-        divUserPost.append(divAvatar)
+        divAuthorPost.append(divAvatar)
 
         const divAuthor = document.createElement('div')
         divAuthor.classList.add('author')
@@ -52,7 +56,7 @@ function showPosts (posts) {
         userLink.href = `${window.location.origin}/app/${post.user}/profile`
         userLink.textContent = `${post.first_name} ${post.last_name}`
         divAuthor.append(userLink)
-        divUserPost.append(divAuthor)
+        divAuthorPost.append(divAuthor)
 
         const divPhoto = document.createElement('div')
         divPhoto.classList.add('photo')
@@ -76,11 +80,11 @@ function showPosts (posts) {
         pDate.textContent = `${post.pub_date}`
         divDate.append(pDate)
 
-        divPost.append(divUserPost)
+        divPost.append(divAuthorPost)
         divPost.append(divPhoto)
         divPost.append(divCaption)
         divPost.append(divDate)
 
-        userPosts.append(divPost)
+        container.append(divPost)
     })
 }

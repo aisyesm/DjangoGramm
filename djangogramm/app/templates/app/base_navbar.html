@@ -1,0 +1,44 @@
+{% extends "app/base.html" %}
+
+{% block head %}
+<script src="https://kit.fontawesome.com/9822aa20bd.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav class="navbar navbar-expand sticky-top navbar-light mb-4 mt-2 bg-white border-bottom">
+        <a class="navbar-brand display-4 ms-3" href="{% url 'app:feed' %}">DjangoGramm</a>
+        <ul class="navbar-nav ms-auto mb-1">
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'app:feed' %}">
+                    <span style="font-size: 1.5em; color: #0d6efd;">
+                        <i class="fas fa-home"></i>
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'app:add_post' auth_user.id %}">
+                    <span style="font-size: 1.5em; color: #0d6efd;">
+                        <i class="far fa-plus-square"></i>
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span style="font-size: 1.5em; color: #0d6efd;">
+                        <i class="far fa-user-circle"></i>
+                    </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'app:profile' auth_user.id %}">Profile</a></li>
+                    <li><a class="dropdown-item" href="{% url 'app:edit_profile' auth_user.id %}">Edit profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'app:logout' %}">Sign out</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <div class="row">{% block below-navbar %}{% endblock %}</div>
+    <div class="row">{% block second-row %}{% endblock %}</div>
+</div>
+{% endblock %}

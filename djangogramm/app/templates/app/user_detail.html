@@ -1,52 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
-    <title>DjangoGramm</title>
-</head>
-<body>
-    <div class="profile_container">
-        <div class="navbar">
-            <div class="navbar-item">
-                <a href="{% url 'app:feed' %}">Feed</a>
-            </div>
-            <div class="navbar-item">
-                <a href="{% url 'app:profile' auth_user.id %}">My profile</a>
-            </div>
-        </div>
-        <div class="user_info">
-            <div class="avatar">
-                {% if can_edit %}
-                    <a href="{% url 'app:change_avatar' auth_user.id %}">
-                        {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}">
-                        {% endif %}
-                    </a>
-                {% else %}
-                    {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}">
-                    {% endif %}
-                {% endif %}
-            </div>
-            <div class="user_details">
-                <div class="full_name_and_edit">
-                    <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+{% extends "app/base_navbar.html" %}
+{% block head %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'app/css/user_detail.css' %}">
+{{ block.super }}
+{% endblock %}
+
+{% block below-navbar %}
+<div class="col-4">
+    <div class="py-5 d-flex flex-row justify-content-center">
+        {% if can_edit %}
+            {% if user.avatar %}
+                <div data-bs-toggle="modal" data-bs-target="#editAvatarModal">
+                    <img src="{{ user.avatar.url }}" class="avatar-img">
                 </div>
-                <p class="bio">{{ user.bio }}</p>
-                {% if can_edit %}
-                    <button type="button" class="add_post_button"
-                                onclick="location.href=`{% url 'app:add_post' user.id %}`">Add Post</button>
-                    <button type="button" class="edit_button"
-                                onclick="location.href=`{% url 'app:edit_profile' user.id %}`">Edit Profile</button>
-                    <button type="button" class="logout"
-                                onclick="location.href=`{% url 'app:logout' %}`">Logout</button>
-                {% endif %}
+            {% else %}
+                <label for="id_avatar">
+                    <img src="{% static 'app/empty_user.jpg' %}" class="avatar-img" style="cursor: pointer;"
+                         data-bs-toggle="tooltip" data-bs-placement="right" title="Add a profile photo">
+                </label>
+                <form method="post" enctype="multipart/form-data" id="form_empty_img"
+                      action="{% url 'app:change_avatar' auth_user.id %}">
+                    {% csrf_token %}
+                    <input type="file" name="avatar" accept="image/*" id="id_avatar" style="display: none;">
+                </form>
+            {% endif %}
+
+        {% else %}
+            {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" class="avatar-img">
+            {% else %}
+                <img src="{% static 'app/empty_user.jpg' %}" class="avatar-img">
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+<div class="col-8">
+    <h3 class="display-6">{{ user.first_name }} {{ user.last_name }}</h3>
+    <p class="text-wrap">{{ user.bio }}</p>
+</div>
+
+<!-- Modal Edit Avatar-->
+<div class="modal fade" id="editAvatarModal" tabindex="-1" aria-labelledby="editAvatarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px;">
+            <div class="modal-header d-flex flex-column align-items-center">
+                <h5 class="modal-title" id="editAvatarModalLabel">Change Profile Photo</h5>
+            </div>
+            <div class="modal-body d-flex flex-column" style="padding: 0;">
+                <label for="id_avatar_nonempty">
+                    <div class="border-bottom py-3 text-primary fw-bold" style="text-align: center; cursor: pointer;">
+                        Upload Photo
+                    </div>
+                </label>
+                <form method="post" enctype="multipart/form-data" id="form_nonempty_img" class="border-bottom py-3"
+                      action="{% url 'app:change_avatar' auth_user.id %}" style="text-align: center;">
+                    {% csrf_token %}
+                    <input type="file" name="avatar" accept="image/*" id="id_avatar_nonempty" style="display: none;">
+                    <button type="submit" class="text-danger fw-bold" name="delete_avatar"
+                            value="true" style="background: none; border: none;">
+                        Remove Current Photo
+                    </button>
+                </form>
+                <button type="button" class="py-3" style="background: none; border: none;"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
             </div>
         </div>
-        <div class="user_posts"></div>
     </div>
-    <script src="{% static 'app/script.js' %}" user_id={{ user.id }} post_count={{ user.post_set.count }}></script>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block second-row %}
+<div class="user_posts"></div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'app/js/profile_page.js' %}" user_id={{ user.id }} post_count={{ user.post_set.count }}></script>
+<script>
+    if (document.getElementById("id_avatar")) {
+        document.getElementById("id_avatar").onchange = function() {
+            document.getElementById("form_empty_img").submit();
+        };
+    };
+    document.getElementById("id_avatar_nonempty").onchange = function() {
+        document.getElementById("form_nonempty_img").submit();
+    };
+</script>
+{% endblock %}
