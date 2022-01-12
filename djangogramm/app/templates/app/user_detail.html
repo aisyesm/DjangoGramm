@@ -11,7 +11,7 @@
         {% if can_edit %}
             {% if user.avatar %}
                 <div data-bs-toggle="modal" data-bs-target="#editAvatarModal">
-                    <img src="{{ user.avatar.url }}" class="avatar-img">
+                    <img src="{{ user.avatar.url }}" class="avatar-img" style="cursor: pointer;">
                 </div>
             {% else %}
                 <label for="id_avatar">
