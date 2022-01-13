@@ -14,6 +14,7 @@ from django.conf import settings
 from django.urls import reverse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
@@ -295,13 +296,9 @@ class UserPostsTestCase(TestCase):
         self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
         self.assertTemplateUsed(response=response, template_name='app/login.html')
         response = self.c.get(f'/app/p/1/delete', follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
-        self.assertTemplateUsed(response=response, template_name='app/login.html')
+        self.assertEqual(response.status_code, 404)
         response = self.c.get(f'/app/p/1/update', follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.resolver_match.func.__name__, Authentication.as_view().__name__)
-        self.assertTemplateUsed(response=response, template_name='app/login.html')
+        self.assertEqual(response.status_code, 404)
 
     def test_user_can_add_and_view_post(self):
         """User can add post and see its detail view."""
@@ -402,7 +399,7 @@ class HelperFuncTestCase(unittest.TestCase):
         self.assertEqual(get_timedelta_for_post(pub_date), '3 DAYS AGO')
         pub_date = now - timedelta(days=7)
         self.assertEqual(get_timedelta_for_post(pub_date), '1 WEEK AGO')
-        pub_date = now - timedelta(days=60)
+        pub_date = now - timedelta(days=10)
         self.assertEqual(get_timedelta_for_post(pub_date),
                          f"{pub_date.strftime('%B').upper()} {pub_date.strftime('%d').lstrip('0')}")
         pub_date = now - timedelta(days=700)
@@ -416,7 +413,7 @@ class MySeleniumTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.selenium = webdriver.Chrome()
+        cls.selenium = webdriver.Chrome(ChromeDriverManager().install())
         cls.selenium.implicitly_wait(10)
 
     @classmethod
@@ -430,9 +427,9 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.find_element(By.ID, value='id_email').send_keys('test1@mail.com')
         self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
         self.selenium.find_element(By.NAME, value='proceed').click()
-        self.selenium.find_element(By.XPATH, value="//a[text()='My profile']").click()
-        self.selenium.find_element(By.CLASS_NAME, value='edit_button').click()
-        self.selenium.find_element(By.XPATH, value="//button[text()='Cancel']").click()
+        self.selenium.find_element(By.XPATH, value="//i[@class='far fa-user-circle']").click()
+        self.selenium.find_element(By.XPATH, value="//a[text()='Edit profile']").click()
+        self.selenium.find_element(By.XPATH, value="//button[@id='cancel-btn']").click()
         self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/65/profile')
 
     def test_user_profile_posts_load_on_scroll(self):
@@ -444,7 +441,8 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.find_element(By.ID, value='id_email').send_keys('test1@mail.com')
         self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
         self.selenium.find_element(By.NAME, value='proceed').click()
-        self.selenium.find_element(By.XPATH, value="//a[text()='My profile']").click()
+        self.selenium.find_element(By.XPATH, value="//i[@class='far fa-user-circle']").click()
+        self.selenium.find_element(By.XPATH, value="//a[text()='Profile']").click()
         posts = self.selenium.find_elements(By.CLASS_NAME, value='post-area')
         self.assertEqual(len(posts), 9)
         self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight)")
@@ -462,15 +460,15 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
         self.selenium.find_element(By.NAME, value='proceed').click()
         time.sleep(5)  # wait for posts to load
-        posts = self.selenium.find_elements(By.CLASS_NAME, value='post')
+        posts = self.selenium.find_elements(By.CSS_SELECTOR, value='.posts .card')
         self.assertEqual(len(posts), 7)
-        self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+        self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight - 807)")
         time.sleep(5)
-        posts = self.selenium.find_elements(By.CLASS_NAME, value='post')
+        posts = self.selenium.find_elements(By.CSS_SELECTOR, value='.posts .card')
         self.assertEqual(len(posts), 14)
         self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         time.sleep(5)
-        posts = self.selenium.find_elements(By.CLASS_NAME, value='post')
+        posts = self.selenium.find_elements(By.CSS_SELECTOR, value='.posts .card')
         self.assertEqual(len(posts), 20)
 
     def test_my_profile_link_redirects_to_logged_in_user(self):
@@ -480,5 +478,6 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
         self.selenium.find_element(By.NAME, value='proceed').click()
         self.selenium.get(f'{self.live_server_url}/app/66/profile')
-        self.selenium.find_element(By.XPATH, value="//a[text()='My profile']").click()
+        self.selenium.find_element(By.XPATH, value="//i[@class='far fa-user-circle']").click()
+        self.selenium.find_element(By.XPATH, value="//a[text()='Profile']").click()
         self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/65/profile')
