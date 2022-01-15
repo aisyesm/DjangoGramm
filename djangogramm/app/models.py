@@ -121,6 +121,13 @@ class Subscription(models.Model):
     followee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscription_followees')
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscription_followers')
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['followee', 'follower'], name='unique_subscription'),
+            models.CheckConstraint(check=~models.Q(followee=models.F('follower')),
+                                   name='followee_and_follower_cannot_be_equal')
+        ]
+
     def __repr__(self):
         return f"{self.__class__.__name__}({self.followee}, {self.follower})"
 
