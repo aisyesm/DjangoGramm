@@ -59,6 +59,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(blank=True, max_length=30)
     bio = models.TextField(blank=True, max_length=70)
     avatar = models.ImageField(null=True, blank=True, upload_to=user_avatar_path)
+    followers = models.ManyToManyField('self', through='Subscription', through_fields=('followee', 'follower'))
+    following = models.ManyToManyField('self', through='Subscription', through_fields=('follower', 'followee'))
 
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
@@ -113,3 +115,11 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.pub_date} {self.user}; caption: {self.caption}"
+
+
+class Subscription(models.Model):
+    followee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscription_followees')
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscription_followers')
+
+    def __repr__(self):
+        return f"{self.followee} is followed by {self.follower}"
