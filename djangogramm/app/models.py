@@ -55,8 +55,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=255,
         unique=True,
     )
-    first_name = models.CharField(blank=True, max_length=30)
-    last_name = models.CharField(blank=True, max_length=30)
+    first_name = models.CharField(blank=True, max_length=25)
+    last_name = models.CharField(blank=True, max_length=25)
     bio = models.TextField(blank=True, max_length=70)
     avatar = models.ImageField(null=True, blank=True, upload_to=user_avatar_path)
     followers = models.ManyToManyField('self', through='Subscription', through_fields=('followee', 'follower'))
