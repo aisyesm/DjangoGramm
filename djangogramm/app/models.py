@@ -114,7 +114,7 @@ class Post(models.Model):
         return reverse('app:post_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return f"{self.pub_date} {self.user}; caption: {self.caption}"
+        return f"{self.user}: (caption: {self.caption}, date: {self.pub_date})"
 
 
 class Subscription(models.Model):
@@ -122,4 +122,7 @@ class Subscription(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscription_followers')
 
     def __repr__(self):
+        return f"{self.__class__.__name__}({self.followee}, {self.follower})"
+
+    def __str__(self):
         return f"{self.followee} is followed by {self.follower}"
