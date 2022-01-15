@@ -184,6 +184,9 @@ class UserProfile(LoginRequiredMixin, DetailView):
         auth_user = self.request.user
         context['auth_user'] = auth_user
         context['can_edit'] = True if auth_user.pk == page_user.id else False
+        context['followers'] = page_user.followers.all()
+        context['following'] = page_user.following.all()
+        context['num_posts'] = page_user.post_set.count()
         return context
 
 

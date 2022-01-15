@@ -19,6 +19,20 @@
   border-radius: 10px;
 }
 
+.user-info {
+    display: flex;
+    flex-direction: row;
+}
+
+.user-info p {
+    margin-bottom: 0px;
+}
+
+.amount {
+    text-align: center;
+    margin-right: 7px;
+}
+
 .post-area:hover{
     filter: brightness(50%);
 }
@@ -31,6 +45,10 @@
   .user_posts {
     grid-auto-rows: 110.33px;
   }
+
+  .user-info {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 576px) and (min-width: 420px){
@@ -40,6 +58,9 @@
   }
   .user_posts {
     grid-auto-rows: 169.33px;
+  }
+  .user-info {
+    flex-direction: column;
   }
 }
 

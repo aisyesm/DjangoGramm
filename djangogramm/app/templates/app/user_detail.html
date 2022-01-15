@@ -35,7 +35,29 @@
     </div>
 </div>
 <div class="col-8">
-    <h3 class="display-6">{{ user.first_name }} {{ user.last_name }}</h3>
+    <h3 class="display-6 mb-4">{{ user.first_name }} {{ user.last_name }}</h3>
+    <div class="d-flex flex-row mb-4">
+        <div class="user-info">
+            <p class="amount">{{ num_posts }}</p>
+            {% if num_posts == 1 %}
+                <p>Post</p>
+            {% else %}
+                <p>Posts</p>
+            {% endif %}
+        </div>
+        <div class="mx-3 mx-md-5 user-info">
+            <p class="amount">{{ followers|length }}</p>
+            {% if followers|length == 1 %}
+                <p>Follower</p>
+            {% else %}
+                <p>Followers</p>
+            {% endif %}
+        </div>
+        <div class="user-info">
+            <p class="amount">{{ following|length }}</p>
+            <p>Following</p>
+        </div>
+    </div>
     <p class="text-wrap">{{ user.bio }}</p>
 </div>
 
