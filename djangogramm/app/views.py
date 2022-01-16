@@ -23,7 +23,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
-from .models import User, Post
+from .models import User, Post, Subscription
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
     UserAvatarUpdateForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer
@@ -184,6 +184,15 @@ class UserProfile(LoginRequiredMixin, DetailView):
         auth_user = self.request.user
         context['auth_user'] = auth_user
         context['can_edit'] = True if auth_user.pk == page_user.id else False
+        can_follow = True if auth_user.pk != page_user.id else False
+        context['can_follow'] = can_follow
+        if can_follow:
+            try:
+                auth_user.subscription_followers.get(followee=page_user)
+            except Subscription.DoesNotExist:
+                context['is_following'] = False
+            else:
+                context['is_following'] = True
         context['followers'] = page_user.followers.all()
         context['following'] = page_user.following.all()
         context['num_posts'] = page_user.post_set.count()

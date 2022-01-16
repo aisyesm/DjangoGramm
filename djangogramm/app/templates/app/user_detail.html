@@ -59,6 +59,13 @@
         </div>
     </div>
     <p class="text-wrap">{{ user.bio }}</p>
+    {% if can_follow %}
+        {% if is_following %}
+            <button class="action-btn btn btn-primary mb-4 mt-sm-2 mt-lg-3 px-4 px-md-5">Already Following</button>
+        {% else %}
+            <button class="action-btn btn btn-primary mb-4 mt-sm-2 mt-lg-3 px-4 px-md-5">Follow</button>
+        {% endif %}
+    {% endif %}
 </div>
 
 <!-- Modal Edit Avatar-->

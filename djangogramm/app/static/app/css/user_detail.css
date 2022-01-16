@@ -33,6 +33,11 @@
     margin-right: 7px;
 }
 
+.action-btn {
+    font-size: 0.95rem!important;
+    border-radius: 7px!important;
+}
+
 .post-area:hover{
     filter: brightness(50%);
 }
