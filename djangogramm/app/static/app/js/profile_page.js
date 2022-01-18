@@ -29,8 +29,9 @@ document.addEventListener("DOMContentLoaded", function() {
         let isFollowing = followData['is_following']
         setFollowOption(btnFollow, isFollowing)
         btnFollow.addEventListener('click', () => {
-            isFollowing = !isFollowing
-            setFollowOption(btnFollow, isFollowing)
+            if (!isFollowing) {
+                setFollowOption(btnFollow, isFollowing=true)
+            }
         })
     }
 })
@@ -40,10 +41,14 @@ function setFollowOption (btn, isFollowing) {
     if (!isFollowing) {
         btn.innerHTML = 'Follow'
         btn.className = 'action-btn btn btn-primary mb-4 mt-sm-2 mt-lg-3 px-4 px-md-5'
+        btn.removeAttribute('data-bs-toggle')
+        btn.removeAttribute('data-bs-target')
     }
     else {
         btn.innerHTML = 'Unfollow'
         btn.className = 'action-btn btn btn-danger mb-4 mt-sm-2 mt-lg-3 px-4 px-md-5'
+        btn.setAttribute('data-bs-toggle', 'modal')
+        btn.setAttribute('data-bs-target', '#unfollowModal')
     }
 }
 
