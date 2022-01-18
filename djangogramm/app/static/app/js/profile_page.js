@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (canFollow) {
         const bio = document.getElementById('bio')
         const btnFollow = document.createElement('button')
+        const confirmUnfollow = document.getElementById('confirm-unfollow')
         bio.after(btnFollow)
         let isFollowing = followData['is_following']
         setFollowOption(btnFollow, isFollowing)
@@ -32,6 +33,9 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!isFollowing) {
                 setFollowOption(btnFollow, isFollowing=true)
             }
+        })
+        confirmUnfollow.addEventListener('click', () => {
+            setFollowOption(btnFollow, isFollowing=false)
         })
     }
 })

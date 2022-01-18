@@ -42,6 +42,17 @@
     filter: brightness(50%);
 }
 
+#confirm-unfollow{
+    background: none;
+    border: none;
+    text-align: center;
+}
+
+.cancel-modal{
+    background: none;
+    border: none;
+}
+
 @media (max-width: 420px){
   .avatar-img {
     width: 80px;
