@@ -58,14 +58,7 @@
             <p>Following</p>
         </div>
     </div>
-    <p class="text-wrap">{{ user.bio }}</p>
-    {% if can_follow %}
-        {% if is_following %}
-            <button class="action-btn btn btn-primary mb-4 mt-sm-2 mt-lg-3 px-4 px-md-5">Already Following</button>
-        {% else %}
-            <button class="action-btn btn btn-primary mb-4 mt-sm-2 mt-lg-3 px-4 px-md-5">Follow</button>
-        {% endif %}
-    {% endif %}
+    <p class="text-wrap" id="bio">{{ user.bio }}</p>
 </div>
 
 <!-- Modal Edit Avatar-->
@@ -105,7 +98,9 @@
 {% endblock %}
 
 {% block script %}
-<script src="{% static 'app/js/profile_page.js' %}" user_id={{ user.id }} post_count={{ user.post_set.count }}></script>
+{{ follow_params|json_script:"follow-data" }}
+<script src="{% static 'app/js/profile_page.js' %}" user_id={{ user.id }} post_count={{ user.post_set.count }}>
+</script>
 <script>
     if (document.getElementById("id_avatar")) {
         document.getElementById("id_avatar").onchange = function() {

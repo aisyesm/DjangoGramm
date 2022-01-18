@@ -185,14 +185,16 @@ class UserProfile(LoginRequiredMixin, DetailView):
         context['auth_user'] = auth_user
         context['can_edit'] = True if auth_user.pk == page_user.id else False
         can_follow = True if auth_user.pk != page_user.id else False
-        context['can_follow'] = can_follow
+        follow_params = {'can_follow': can_follow}
         if can_follow:
             try:
                 auth_user.subscription_followers.get(followee=page_user)
             except Subscription.DoesNotExist:
-                context['is_following'] = False
+                is_following = False
             else:
-                context['is_following'] = True
+                is_following = True
+            follow_params['is_following'] = is_following
+        context['follow_params'] = follow_params
         context['followers'] = page_user.followers.all()
         context['following'] = page_user.following.all()
         context['num_posts'] = page_user.post_set.count()
