@@ -19,7 +19,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
 from .helpers import get_timedelta_for_post
-from .models import User, Post
+from .models import User, Post, Subscription
 from .views import Authentication, UserEnterInfoView, Feed, Register, UserProfile, PostDetail
 from .forms import UserLoginForm, UserRegisterForm, UserFullInfoForm
 
@@ -370,9 +370,61 @@ class UserPostsAPITestCase(APITestCase):
         response = self.client.get(url + '?start=1&offset=2', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-        response = self.client.get(url + '?user_id=65', format='json')
+        response = self.client.get(url + '?user_id=69', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 15)
+        self.assertEqual(len(response.data), 8)
+
+
+class SubscriptionAPITestCase(APITestCase):
+    fixtures = ['users.json', 'posts.json', 'subscriptions.json']
+
+    def setUp(self) -> None:
+        self.client = APIClient()
+
+    def test_get_subscription(self):
+        """
+        Ensure api return correct json.
+        """
+        url = reverse('app:subscription', kwargs={'follower_id': 62, 'followee_id': 69})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {'id': 4, 'followee': 69, 'follower': 62})
+
+    def test_delete_subscription(self):
+        """
+        Test delete single subscription route.
+        """
+        url = reverse('app:subscription', kwargs={'follower_id': 62, 'followee_id': 69})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Subscription.objects.filter(followee=69, follower=62).first(), None)
+
+    def test_get_subscriptions(self):
+        """
+        Ensure api return correct json.
+        """
+        url = reverse('app:subscription_list', kwargs={'follower_id': 62})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+    def test_post_subscriptions(self):
+        """
+        Ensure api creates a new subscription.
+        """
+        url = reverse('app:subscription_list', kwargs={'follower_id': 91})
+        response = self.client.post(url, data={'followee_id': 62})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data, {'id': 15, 'followee': 62, 'follower': 91})
+        self.assertEqual(len(Subscription.objects.filter(id=15)), 1)
+
+        # ensure cannot subscribe twice
+        response = self.client.post(url, data={'followee_id': 62})
+        self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # ensure cannot subscribe to himself
+        response = self.client.post(url, data={'followee_id': 91})
+        self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class HelperFuncTestCase(unittest.TestCase):
