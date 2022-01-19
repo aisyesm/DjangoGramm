@@ -3,7 +3,7 @@ import re
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseNotAllowed
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseNotAllowed, Http404
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
@@ -369,12 +369,11 @@ class Feed(LoginRequiredMixin, ListView):
         return context
 
 
-@api_view(['GET', 'POST'])
-def subscription_list(request, follower_id):
+class SubscriptionList(APIView):
     """
     List all user subscriptions, or create a new subscription.
     """
-    if request.method == 'GET':
+    def get(self, request, follower_id):
         try:
             User.objects.get(id=follower_id)
         except User.DoesNotExist:
@@ -383,7 +382,7 @@ def subscription_list(request, follower_id):
         serializer = SubscriptionSerializer(subscriptions, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
+    def post(self, request, follower_id):
         # has to provide who to follow
         if not request.data.get('followee_id'):
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -411,21 +410,23 @@ def subscription_list(request, follower_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'DELETE'])
-def subscription_detail(request, follower_id, followee_id):
+class SubscriptionDetail(APIView):
     """
     Retrieve or delete a subscription.
     """
-    try:
-        subscription = Subscription.objects.get(
-            followee=followee_id, follower=follower_id)
-    except Subscription.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    def get_object(self, followee_id, follower_id):
+        try:
+            return Subscription.objects.get(
+                followee=followee_id, follower=follower_id)
+        except Subscription.DoesNotExist:
+            raise Http404
 
-    if request.method == 'GET':
+    def get(self, request, follower_id, followee_id):
+        subscription = self.get_object(followee_id, follower_id)
         serializer = SubscriptionSerializer(subscription)
         return Response(serializer.data)
 
-    elif request.method == 'DELETE':
+    def delete(self, request, follower_id, followee_id):
+        subscription = self.get_object(followee_id, follower_id)
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

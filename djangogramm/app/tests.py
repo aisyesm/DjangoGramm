@@ -426,6 +426,10 @@ class SubscriptionAPITestCase(APITestCase):
         response = self.client.post(url, data={'followee_id': 91})
         self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
 
+        # ensure users have to exist
+        response = self.client.post(url, data={'followee_id': 91})
+        self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
+
 
 class HelperFuncTestCase(unittest.TestCase):
     """Unit test functions from helpers.py."""
