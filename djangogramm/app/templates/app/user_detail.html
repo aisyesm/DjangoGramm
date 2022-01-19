@@ -15,7 +15,7 @@
                 </div>
             {% else %}
                 <label for="id_avatar">
-                    <img src="{% static 'app/empty_user.jpg' %}" class="avatar-img" style="cursor: pointer;"
+                    <img src="{% static 'app/img/empty_user.jpg' %}" class="avatar-img" style="cursor: pointer;"
                          data-bs-toggle="tooltip" data-bs-placement="right" title="Add a profile photo">
                 </label>
                 <form method="post" enctype="multipart/form-data" id="form_empty_img"
@@ -29,7 +29,7 @@
             {% if user.avatar %}
                 <img src="{{ user.avatar.url }}" class="avatar-img">
             {% else %}
-                <img src="{% static 'app/empty_user.jpg' %}" class="avatar-img">
+                <img src="{% static 'app/img/empty_user.jpg' %}" class="avatar-img">
             {% endif %}
         {% endif %}
     </div>

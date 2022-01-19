@@ -1,0 +1,26 @@
+[
+{
+    "model": "app.subscription",
+    "pk": 4,
+    "fields": {
+        "followee": 69,
+        "follower": 62
+    }
+},
+{
+    "model": "app.subscription",
+    "pk": 12,
+    "fields": {
+        "followee": 91,
+        "follower": 62
+    }
+},
+{
+    "model": "app.subscription",
+    "pk": 14,
+    "fields": {
+        "followee": 91,
+        "follower": 69
+    }
+}
+]

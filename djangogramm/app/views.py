@@ -19,6 +19,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
 from rest_framework import status, permissions
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -26,7 +27,7 @@ from .helpers import get_timedelta_for_post
 from .models import User, Post, Subscription
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
     UserAvatarUpdateForm
-from .serializers import UserProfilePostSerializer, FeedPostSerializer
+from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer
 
 
 class Authentication(View):
@@ -47,7 +48,8 @@ class Authentication(View):
                     login(request, user)
                     if user.first_name and user.last_name:
                         return HttpResponseRedirect(reverse('app:feed'))
-                    return HttpResponseRedirect(reverse('app:enter_info', args=[user.id]))
+                    return HttpResponseRedirect(
+                        reverse('app:enter_info', args=[user.id]))
                 else:
                     context = {'form': form, 'invalid_credentials': True}
                     return render(request, self.template_name, context=context)
@@ -75,13 +77,16 @@ class Register(View):
                 else:
                     if form.cleaned_data['password'] != form.cleaned_data['confirm_password']:
                         context = {'form': form, 'passwords_dont_match': True}
-                        return render(request, self.template_name, context=context)
-                    existing_user = User.objects.filter(email=form.cleaned_data['email']).first()
+                        return render(
+                            request, self.template_name, context=context)
+                    existing_user = User.objects.filter(
+                        email=form.cleaned_data['email']).first()
                     if existing_user:
                         context = {'form': form, 'user_already_exist': True}
-                        return render(request, self.template_name, context=context)
-                    user = User.objects.create_user(form.cleaned_data['email'],
-                                                    form.cleaned_data['password'])
+                        return render(
+                            request, self.template_name, context=context)
+                    user = User.objects.create_user(
+                        form.cleaned_data['email'], form.cleaned_data['password'])
                     current_site = get_current_site(request)
                     mail_subject = 'Activate your DjangoGramm account.'
                     message = render_to_string('app/acc_active_email.html', {
@@ -98,7 +103,9 @@ class Register(View):
                         [to_email],
                         fail_silently=False,
                     )
-                    return render(request, "app/activation_link_sent.html", {'email': form.cleaned_data['email']})
+                    return render(request,
+                                  "app/activation_link_sent.html",
+                                  {'email': form.cleaned_data['email']})
 
         return render(request, self.template_name, {'form': form})
 
@@ -285,17 +292,23 @@ class UserPostList(APIView):
             if not q_params['start'] and not q_params['offset']:
                 posts = Post.objects.filter(user__id=q_params['user_id'])
             elif not q_params['start'] or not q_params['offset']:
-                posts = Post.objects.filter(user__id=q_params['user_id'])[q_params['start']:q_params['offset']]
+                posts = Post.objects.filter(user__id=q_params['user_id'])[
+                        q_params['start']:q_params['offset']]
             elif q_params['offset'] and q_params['start']:
-                posts = Post.objects.filter(user__id=q_params['user_id'])[q_params['start']:q_params['start'] + q_params['offset']]
+                posts = Post.objects.filter(
+                    user__id=q_params['user_id'])[
+                        q_params['start']:q_params['start'] +
+                                          q_params['offset']]
             serializer = UserProfilePostSerializer(posts, many=True)
         else:
             if not q_params['start'] and not q_params['offset']:
                 posts = Post.objects.all()
             elif not q_params['start'] or not q_params['offset']:
-                posts = Post.objects.all()[q_params['start']:q_params['offset']]
+                posts = Post.objects.all()[
+                        q_params['start']:q_params['offset']]
             elif q_params['offset'] and q_params['start']:
-                posts = Post.objects.all()[q_params['start']:q_params['start'] + q_params['offset']]
+                posts = Post.objects.all()[
+                        q_params['start']:q_params['start'] + q_params['offset']]
             serializer = FeedPostSerializer(posts, many=True)
 
         return Response(serializer.data)
@@ -356,5 +369,63 @@ class Feed(LoginRequiredMixin, ListView):
         return context
 
 
+@api_view(['GET', 'POST'])
+def subscription_list(request, follower_id):
+    """
+    List all user subscriptions, or create a new subscription.
+    """
+    if request.method == 'GET':
+        try:
+            User.objects.get(id=follower_id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        subscriptions = Subscription.objects.filter(follower=follower_id)
+        serializer = SubscriptionSerializer(subscriptions, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        # has to provide who to follow
+        if not request.data.get('followee_id'):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            followee_id = request.data['followee_id']
+
+        # followee and followee have to exist
+        try:
+            User.objects.get(id=followee_id)
+            User.objects.get(id=follower_id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # user cannot follow himself or subscribe twice
+        if int(followee_id) == int(follower_id) or \
+            Subscription.objects.filter(followee=followee_id, follower=follower_id):
+            return Response(status=status.HTTP_409_CONFLICT)
+
+        serializer = SubscriptionSerializer(data={
+            'followee': followee_id,
+            'follower': follower_id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET', 'DELETE'])
+def subscription_detail(request, follower_id, followee_id):
+    """
+    Retrieve or delete a subscription.
+    """
+    try:
+        subscription = Subscription.objects.get(
+            followee=followee_id, follower=follower_id)
+    except Subscription.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = SubscriptionSerializer(subscription)
+        return Response(serializer.data)
+
+    elif request.method == 'DELETE':
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

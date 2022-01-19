@@ -31,10 +31,18 @@ document.addEventListener("DOMContentLoaded", function() {
         setFollowOption(btnFollow, isFollowing)
         btnFollow.addEventListener('click', () => {
             if (!isFollowing) {
+                // fetch(`${window.location.origin}/app/subscriptions/${followee_id}/${follower_id}`, {
+                //     method: 'POST',
+                // }).then(response => response.json())
+                //     .then(data => console.log(data))
                 setFollowOption(btnFollow, isFollowing=true)
             }
         })
         confirmUnfollow.addEventListener('click', () => {
+            // fetch(`${window.location.origin}/app/subscriptions/${followee_id}/${follower_id}`, {
+                //     method: 'DELETE',
+                // }).then(response => response.json())
+                //     .then(data => console.log(data))
             setFollowOption(btnFollow, isFollowing=false)
         })
     }

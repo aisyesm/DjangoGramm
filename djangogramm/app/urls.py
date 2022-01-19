@@ -19,6 +19,8 @@ urlpatterns = [
     path('p/<int:pk>/delete', views.PostDeleteView.as_view(), name='post_delete'),
     path('p/<int:pk>/update', views.PostUpdateView.as_view(), name='post_update'),
     path('feed', views.Feed.as_view(), name='feed'),
+    path('subscriptions/<int:follower_id>', views.subscription_list, name='subscription_list'),
+    path('subscriptions/<int:follower_id>/<int:followee_id>', views.subscription_detail, name='subscription'),
     path('api-auth/', include('rest_framework.urls')),
 ]
 

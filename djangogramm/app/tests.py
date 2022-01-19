@@ -350,7 +350,7 @@ class UserPostsTestCase(TestCase):
                 shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
 
 
-class RestAPITestCase(APITestCase):
+class UserPostsAPITestCase(APITestCase):
     fixtures = ['users.json', 'posts.json']
 
     def setUp(self) -> None:
@@ -366,7 +366,7 @@ class RestAPITestCase(APITestCase):
         self.client.login(email='test1@mail.com', password='test1')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 20)
+        self.assertEqual(len(response.data), 10)
         response = self.client.get(url + '?start=1&offset=2', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)

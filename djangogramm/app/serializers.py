@@ -1,6 +1,6 @@
 from datetime import datetime
 from rest_framework import serializers
-from .models import Post
+from .models import Post, Subscription, User
 from .helpers import get_timedelta_for_post
 
 
@@ -27,3 +27,10 @@ class FeedPostSerializer(serializers.ModelSerializer):
         pub_date = datetime.fromisoformat(ret['pub_date'])
         ret['pub_date'] = get_timedelta_for_post(pub_date)
         return ret
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = '__all__'
