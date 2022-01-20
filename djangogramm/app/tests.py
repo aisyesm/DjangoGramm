@@ -386,6 +386,14 @@ class SubscriptionAPITestCase(APITestCase):
         Ensure api return correct json.
         """
         url = reverse('app:subscription', kwargs={'follower_id': 62, 'followee_id': 69})
+
+        # test user has to be authenticated
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # test user has to be admin or subscription owner
+        user = User.objects.get(email='test1@mail.com')
+        self.client.force_authenticate(user=user)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         user = User.objects.get(email='admin@mail.com')
@@ -399,9 +407,17 @@ class SubscriptionAPITestCase(APITestCase):
         Test delete single subscription route.
         """
         url = reverse('app:subscription', kwargs={'follower_id': 69, 'followee_id': 91})
+
+        # test user has to be authenticated
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        user = User.objects.get(email='admin@mail.com')
+
+        # test user has to be admin or subscription owner
+        user = User.objects.get(email='test2@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='test1@mail.com')
         self.client.force_authenticate(user=user)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
