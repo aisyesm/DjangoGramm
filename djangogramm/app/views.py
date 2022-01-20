@@ -19,7 +19,6 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
 from rest_framework import status, permissions
-from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -28,6 +27,7 @@ from .models import User, Post, Subscription
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
     UserAvatarUpdateForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer
+from .permissions import IsAdminOrUserOwnSubscriptions
 
 
 class Authentication(View):
@@ -373,6 +373,8 @@ class SubscriptionList(APIView):
     """
     List all user subscriptions, or create a new subscription.
     """
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrUserOwnSubscriptions]
+
     def get(self, request, follower_id):
         try:
             User.objects.get(id=follower_id)
@@ -414,6 +416,8 @@ class SubscriptionDetail(APIView):
     """
     Retrieve or delete a subscription.
     """
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrUserOwnSubscriptions]
+
     def get_object(self, followee_id, follower_id):
         try:
             return Subscription.objects.get(

@@ -387,6 +387,10 @@ class SubscriptionAPITestCase(APITestCase):
         """
         url = reverse('app:subscription', kwargs={'follower_id': 62, 'followee_id': 69})
         response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='admin@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {'id': 4, 'followee': 69, 'follower': 62})
 
@@ -394,16 +398,24 @@ class SubscriptionAPITestCase(APITestCase):
         """
         Test delete single subscription route.
         """
-        url = reverse('app:subscription', kwargs={'follower_id': 62, 'followee_id': 69})
+        url = reverse('app:subscription', kwargs={'follower_id': 69, 'followee_id': 91})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='admin@mail.com')
+        self.client.force_authenticate(user=user)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Subscription.objects.filter(followee=69, follower=62).first(), None)
+        self.assertEqual(Subscription.objects.filter(followee=91, follower=69).first(), None)
 
     def test_get_subscriptions(self):
         """
         Ensure api return correct json.
         """
         url = reverse('app:subscription_list', kwargs={'follower_id': 62})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='admin@mail.com')
+        self.client.force_authenticate(user=user)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
@@ -413,6 +425,10 @@ class SubscriptionAPITestCase(APITestCase):
         Ensure api creates a new subscription.
         """
         url = reverse('app:subscription_list', kwargs={'follower_id': 91})
+        response = self.client.post(url, data={'followee_id': 62})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='admin@mail.com')
+        self.client.force_authenticate(user=user)
         response = self.client.post(url, data={'followee_id': 62})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {'id': 15, 'followee': 62, 'follower': 91})
