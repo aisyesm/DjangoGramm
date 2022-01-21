@@ -5,19 +5,20 @@ const curScriptElement = document.currentScript
 document.addEventListener("DOMContentLoaded", function() {
     let start = 0
     let offset = 9
-    let user_id = curScriptElement.getAttribute('user_id')
+    let userID = curScriptElement.getAttribute('user_id')
     let post_count = curScriptElement.getAttribute('post_count')
     const followData = JSON.parse(document.getElementById('follow-data').textContent)
+    const authUserID = JSON.parse(document.getElementById('auth-user-id').textContent)
     let canFollow = followData['can_follow']
 
-    getPosts(start, offset, user_id)
+    getPosts(start, offset, userID)
 
     window.addEventListener('scroll', function() {
         let windowRelativeBottom = document.documentElement.getBoundingClientRect().bottom
         if (windowRelativeBottom < document.documentElement.clientHeight + 50) {
             start += offset
             if (start < post_count) {
-                getPosts(start, offset, user_id)
+                getPosts(start, offset, userID)
             }
         }
     })
@@ -31,19 +32,47 @@ document.addEventListener("DOMContentLoaded", function() {
         setFollowOption(btnFollow, isFollowing)
         btnFollow.addEventListener('click', () => {
             if (!isFollowing) {
-                // fetch(`${window.location.origin}/app/subscriptions/${followee_id}/${follower_id}`, {
-                //     method: 'POST',
-                // }).then(response => response.json())
-                //     .then(data => console.log(data))
-                setFollowOption(btnFollow, isFollowing=true)
+                fetch(`${window.location.origin}/app/subscriptions/${authUserID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify({'followee_id': userID}),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        setFollowOption(btnFollow, isFollowing=true)
+                    }
+                    else {
+                        alert(`You request cannot be proceeded (error code ${response.status}), please reload the page`)
+                    }
+                })
+                .catch((error) => {
+                  alert(`There has been a problem with your fetch operation: ${error}`)
+                });
+
             }
         })
         confirmUnfollow.addEventListener('click', () => {
-            // fetch(`${window.location.origin}/app/subscriptions/${followee_id}/${follower_id}`, {
-                //     method: 'DELETE',
-                // }).then(response => response.json())
-                //     .then(data => console.log(data))
-            setFollowOption(btnFollow, isFollowing=false)
+            fetch(`${window.location.origin}/app/subscriptions/${authUserID}/${userID}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                })
+                .then(response => {
+                    if (response.ok) {
+                        setFollowOption(btnFollow, isFollowing=false)
+                    }
+                    else {
+                        alert(`You request cannot be proceeded (error code ${response.status}), please reload the page`)
+                    }
+                })
+                .catch((error) => {
+                  alert(`There has been a problem with your fetch operation: ${error}`)
+                });
         })
     }
 })
@@ -65,8 +94,25 @@ function setFollowOption (btn, isFollowing) {
 }
 
 
-function getPosts (start, offset, user_id) {
-    fetch(`${window.location.origin}/app/posts?user_id=${user_id}&offset=${offset}&start=${start}`)
+function getCookie(name) {
+    let cookieValue = null
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';')
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim()
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
+                break
+            }
+        }
+    }
+    return cookieValue
+}
+
+
+function getPosts (start, offset, userID) {
+    fetch(`${window.location.origin}/app/posts?user_id=${userID}&offset=${offset}&start=${start}`)
     .then (response => response.json())
     .then (json => showPosts(json))
 }

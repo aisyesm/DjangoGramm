@@ -120,6 +120,7 @@
 
 {% block script %}
 {{ follow_params|json_script:"follow-data" }}
+{{ auth_user.id|json_script:"auth-user-id" }}
 <script src="{% static 'app/js/profile_page.js' %}" user_id={{ user.id }} post_count={{ user.post_set.count }}>
 </script>
 <script>
