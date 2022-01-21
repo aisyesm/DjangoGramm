@@ -86,10 +86,12 @@ function setFollowOption (btn, isFollowing) {
         btn.className = 'action-btn btn btn-primary mb-4 mt-sm-2 mt-lg-3 px-4 px-md-5'
         btn.removeAttribute('data-bs-toggle')
         btn.removeAttribute('data-bs-target')
+        btn.removeAttribute('style')
     }
     else {
-        btn.innerHTML = 'Unfollow'
-        btn.className = 'action-btn btn btn-danger mb-4 mt-sm-2 mt-lg-3 px-4 px-md-5'
+        btn.innerHTML = '<i class="fas fa-user-check"></i>'
+        btn.className = 'action-btn btn btn-secondary mb-4 mt-sm-2 mt-lg-3 px-4 px-md-4'
+        btn.setAttribute('style', 'background: none; color: black; border-color: rgba(var(--b6a,219,219,219),1);')
         btn.setAttribute('data-bs-toggle', 'modal')
         btn.setAttribute('data-bs-target', '#unfollowModal')
     }
