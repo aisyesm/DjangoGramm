@@ -46,7 +46,7 @@
             {% endif %}
         </div>
         <div class="mx-3 mx-md-5 user-info">
-            <p class="amount">{{ followers|length }}</p>
+            <p class="amount" id="num-followers">{{ followers|length }}</p>
             {% if followers|length == 1 %}
                 <p>Follower</p>
             {% else %}

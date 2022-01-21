@@ -43,6 +43,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(response => {
                     if (response.ok) {
                         setFollowOption(btnFollow, isFollowing=true)
+                        let followersElem = document.getElementById('num-followers')
+                        let numFollowers = followersElem.textContent
+                        numFollowers = parseInt(numFollowers, 10)
+                        numFollowers++
+                        followersElem.textContent = numFollowers
                     }
                     else {
                         alert(`You request cannot be proceeded (error code ${response.status}), please reload the page`)
@@ -65,6 +70,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(response => {
                     if (response.ok) {
                         setFollowOption(btnFollow, isFollowing=false)
+                        let followersElem = document.getElementById('num-followers')
+                        let numFollowers = followersElem.textContent
+                        numFollowers = parseInt(numFollowers, 10)
+                        numFollowers--
+                        followersElem.textContent = numFollowers
                     }
                     else {
                         alert(`You request cannot be proceeded (error code ${response.status}), please reload the page`)
