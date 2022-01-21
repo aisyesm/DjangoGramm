@@ -21,6 +21,7 @@ urlpatterns = [
     path('feed', views.Feed.as_view(), name='feed'),
     path('subscriptions/<int:follower_id>', views.SubscriptionList.as_view(), name='subscription_list'),
     path('subscriptions/<int:follower_id>/<int:followee_id>', views.SubscriptionDetail.as_view(), name='subscription'),
+    path('explore', views.ExploreUserListView.as_view(), name='user-list'),
     path('api-auth/', include('rest_framework.urls')),
 ]
 
