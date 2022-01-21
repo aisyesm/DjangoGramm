@@ -43,11 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(response => {
                     if (response.ok) {
                         setFollowOption(btnFollow, isFollowing=true)
-                        let followersElem = document.getElementById('num-followers')
-                        let numFollowers = followersElem.textContent
-                        numFollowers = parseInt(numFollowers, 10)
-                        numFollowers++
-                        followersElem.textContent = numFollowers
+                        adjustNumFollowers(1)
                     }
                     else {
                         alert(`You request cannot be proceeded (error code ${response.status}), please reload the page`)
@@ -70,11 +66,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(response => {
                     if (response.ok) {
                         setFollowOption(btnFollow, isFollowing=false)
-                        let followersElem = document.getElementById('num-followers')
-                        let numFollowers = followersElem.textContent
-                        numFollowers = parseInt(numFollowers, 10)
-                        numFollowers--
-                        followersElem.textContent = numFollowers
+                        adjustNumFollowers(-1)
                     }
                     else {
                         alert(`You request cannot be proceeded (error code ${response.status}), please reload the page`)
@@ -100,6 +92,21 @@ function setFollowOption (btn, isFollowing) {
         btn.className = 'action-btn btn btn-danger mb-4 mt-sm-2 mt-lg-3 px-4 px-md-5'
         btn.setAttribute('data-bs-toggle', 'modal')
         btn.setAttribute('data-bs-target', '#unfollowModal')
+    }
+}
+
+
+function adjustNumFollowers(delta) {
+    let followersElem = document.getElementById('num-followers')
+    let numFollowers = followersElem.textContent
+    numFollowers = parseInt(numFollowers, 10)
+    numFollowers += delta
+    followersElem.textContent = numFollowers
+    if (numFollowers === 1) {
+        document.getElementById('id-followers').textContent = 'Follower'
+    }
+    else {
+        document.getElementById('id-followers').textContent = 'Followers'
     }
 }
 
