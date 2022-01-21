@@ -1,4 +1,11 @@
 {% extends "app/base_navbar.html" %}
+
+{% block head %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'app/css/user_list.css' %}">
+{{ block.super }}
+{% endblock %}
+
 {% block below-navbar %}
 <h2>Explore Users</h2>
 <ul>
