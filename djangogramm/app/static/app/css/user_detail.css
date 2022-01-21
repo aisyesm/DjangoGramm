@@ -5,6 +5,14 @@
     object-fit: cover;
 }
 
+.avatar-can-change {
+    cursor: pointer;
+}
+
+.avatar-can-change:hover {
+    filter: brightness(75%);
+}
+
 .user_posts {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -44,7 +52,7 @@
 }
 
 .post-area:hover{
-    filter: brightness(50%);
+    filter: brightness(62.5%);
 }
 
 #confirm-unfollow{

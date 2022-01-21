@@ -11,12 +11,12 @@
         {% if can_edit %}
             {% if user.avatar %}
                 <div data-bs-toggle="modal" data-bs-target="#editAvatarModal">
-                    <img src="{{ user.avatar.url }}" class="avatar-img" style="cursor: pointer;">
+                    <img src="{{ user.avatar.url }}" class="avatar-img avatar-can-change" alt="avatar here">
                 </div>
             {% else %}
                 <label for="id_avatar">
-                    <img src="{% static 'app/img/empty_user.jpg' %}" class="avatar-img" style="cursor: pointer;"
-                         data-bs-toggle="tooltip" data-bs-placement="right" title="Add a profile photo">
+                    <img src="{% static 'app/img/empty_user.jpg' %}" class="avatar-img avatar-can-change"
+                         data-bs-toggle="tooltip" data-bs-placement="right" title="Add a profile photo" alt="avatar here">
                 </label>
                 <form method="post" enctype="multipart/form-data" id="form_empty_img"
                       action="{% url 'app:change_avatar' auth_user.id %}">
