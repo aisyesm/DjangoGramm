@@ -301,13 +301,14 @@ class UserPostList(APIView):
                                           q_params['offset']]
             serializer = UserProfilePostSerializer(posts, many=True)
         else:
+            auth_user = User.objects.get(id=request.user.id)
             if not q_params['start'] and not q_params['offset']:
-                posts = Post.objects.all()
+                posts = Post.objects.filter(user__in=auth_user.following.all())
             elif not q_params['start'] or not q_params['offset']:
-                posts = Post.objects.all()[
+                posts = Post.objects.filter(user__in=auth_user.following.all())[
                         q_params['start']:q_params['offset']]
             elif q_params['offset'] and q_params['start']:
-                posts = Post.objects.all()[
+                posts = Post.objects.filter(user__in=auth_user.following.all())[
                         q_params['start']:q_params['start'] + q_params['offset']]
             serializer = FeedPostSerializer(posts, many=True)
 
