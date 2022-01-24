@@ -38,3 +38,8 @@ ul li:last-child .user {
     text-decoration: underline;
     color: black;
 }
+
+.following {
+    font-size: 0.7em; !important;
+    color: gray;
+}

@@ -22,6 +22,9 @@
             <a href="{% url 'app:profile' user.id %}">
                 <span class="name ms-2">{{ user.first_name }} {{ user.last_name }}</span>
             </a>
+            {% if user in auth_user.following.all %}
+            <span class="following ms-2">following<i class="fas fa-check"></i></span>
+            {% endif %}
         </div>
     </li>
 {% empty %}
