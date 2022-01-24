@@ -9,7 +9,12 @@ li {
 }
 
 .user {
-    margin-bottom: 10px;
+    padding: 7px 0 7px 0;
+    border-bottom: 1px solid rgba(var(--b6a,219,219,219),1);
+}
+
+ul li:last-child .user {
+    border-bottom: none;
 }
 
 .user img {
@@ -20,12 +25,16 @@ li {
     object-fit: cover;
 }
 
-.user a {
+.user a:first-child {
+    text-decoration: none;
+}
+
+.user a:nth-child(2) {
     text-decoration: none;
     color: black;
 }
 
-.user a:hover {
+.user a:nth-child(2):hover {
     text-decoration: underline;
     color: black;
 }

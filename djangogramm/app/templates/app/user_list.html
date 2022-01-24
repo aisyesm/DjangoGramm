@@ -7,17 +7,18 @@
 {% endblock %}
 
 {% block below-navbar %}
-<h2 class="mb-3">Explore Users</h2>
+<h2 class="mb-3">Explore Profiles</h2>
 <ul>
 {% for user in object_list %}
     <li>
         <div class="user">
-
-            {% if user.avatar %}
-            <img src="{{ user.avatar.url }}" alt="avatar">
-            {% else %}
-            <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
-            {% endif %}
+            <a href="{% url 'app:profile' user.id %}">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="avatar">
+                {% else %}
+                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
+                {% endif %}
+            </a>
             <a href="{% url 'app:profile' user.id %}">
                 <span class="name ms-2">{{ user.first_name }} {{ user.last_name }}</span>
             </a>

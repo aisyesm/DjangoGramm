@@ -440,6 +440,7 @@ class ExploreUserListView(ListView):
 
     model = User
     paginate_by = 15
+    ordering = ['last_name']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
