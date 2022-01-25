@@ -18,6 +18,8 @@
                     <a href="{% url 'app:profile' post.user.id %}">
                         {% if post.user.avatar %}
                             <img src="{{ post.user.avatar.url }}">
+                        {% else %}
+                            <img src="{% static 'app/img/empty_user.jpg' %}">
                         {% endif %}
                     </a>
                 </div>

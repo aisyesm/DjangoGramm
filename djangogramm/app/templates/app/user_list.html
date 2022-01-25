@@ -1,0 +1,51 @@
+{% extends "app/base_navbar.html" %}
+
+{% block head %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'app/css/user_list.css' %}">
+{{ block.super }}
+{% endblock %}
+
+{% block below-navbar %}
+<h2 class="mb-3">Explore Profiles</h2>
+<ul>
+{% for user in object_list %}
+    <li>
+        <div class="user">
+            <a href="{% url 'app:profile' user.id %}">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="avatar">
+                {% else %}
+                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
+                {% endif %}
+            </a>
+            <a href="{% url 'app:profile' user.id %}">
+                <span class="name ms-2">{{ user.first_name }} {{ user.last_name }}</span>
+            </a>
+            {% if user in auth_user.following.all %}
+            <span class="following ms-2">following<i class="fas fa-check"></i></span>
+            {% endif %}
+        </div>
+    </li>
+{% empty %}
+    <li>No users yet.</li>
+{% endfor %}
+</ul>
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{% endblock %}

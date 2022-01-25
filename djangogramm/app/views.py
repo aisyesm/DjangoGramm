@@ -3,7 +3,7 @@ import re
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseNotAllowed
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseNotAllowed, Http404
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
@@ -23,10 +23,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
-from .models import User, Post
+from .models import User, Post, Subscription
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
     UserAvatarUpdateForm
-from .serializers import UserProfilePostSerializer, FeedPostSerializer
+from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer
+from .permissions import IsAdminOrUserOwnSubscriptions
 
 
 class Authentication(View):
@@ -47,7 +48,8 @@ class Authentication(View):
                     login(request, user)
                     if user.first_name and user.last_name:
                         return HttpResponseRedirect(reverse('app:feed'))
-                    return HttpResponseRedirect(reverse('app:enter_info', args=[user.id]))
+                    return HttpResponseRedirect(
+                        reverse('app:enter_info', args=[user.id]))
                 else:
                     context = {'form': form, 'invalid_credentials': True}
                     return render(request, self.template_name, context=context)
@@ -75,13 +77,16 @@ class Register(View):
                 else:
                     if form.cleaned_data['password'] != form.cleaned_data['confirm_password']:
                         context = {'form': form, 'passwords_dont_match': True}
-                        return render(request, self.template_name, context=context)
-                    existing_user = User.objects.filter(email=form.cleaned_data['email']).first()
+                        return render(
+                            request, self.template_name, context=context)
+                    existing_user = User.objects.filter(
+                        email=form.cleaned_data['email']).first()
                     if existing_user:
                         context = {'form': form, 'user_already_exist': True}
-                        return render(request, self.template_name, context=context)
-                    user = User.objects.create_user(form.cleaned_data['email'],
-                                                    form.cleaned_data['password'])
+                        return render(
+                            request, self.template_name, context=context)
+                    user = User.objects.create_user(
+                        form.cleaned_data['email'], form.cleaned_data['password'])
                     current_site = get_current_site(request)
                     mail_subject = 'Activate your DjangoGramm account.'
                     message = render_to_string('app/acc_active_email.html', {
@@ -98,7 +103,9 @@ class Register(View):
                         [to_email],
                         fail_silently=False,
                     )
-                    return render(request, "app/activation_link_sent.html", {'email': form.cleaned_data['email']})
+                    return render(request,
+                                  "app/activation_link_sent.html",
+                                  {'email': form.cleaned_data['email']})
 
         return render(request, self.template_name, {'form': form})
 
@@ -184,6 +191,20 @@ class UserProfile(LoginRequiredMixin, DetailView):
         auth_user = self.request.user
         context['auth_user'] = auth_user
         context['can_edit'] = True if auth_user.pk == page_user.id else False
+        can_follow = True if auth_user.pk != page_user.id else False
+        follow_params = {'can_follow': can_follow}
+        if can_follow:
+            try:
+                auth_user.subscription_followers.get(followee=page_user)
+            except Subscription.DoesNotExist:
+                is_following = False
+            else:
+                is_following = True
+            follow_params['is_following'] = is_following
+        context['follow_params'] = follow_params
+        context['followers'] = page_user.followers.all()
+        context['following'] = page_user.following.all()
+        context['num_posts'] = page_user.post_set.count()
         return context
 
 
@@ -271,17 +292,24 @@ class UserPostList(APIView):
             if not q_params['start'] and not q_params['offset']:
                 posts = Post.objects.filter(user__id=q_params['user_id'])
             elif not q_params['start'] or not q_params['offset']:
-                posts = Post.objects.filter(user__id=q_params['user_id'])[q_params['start']:q_params['offset']]
+                posts = Post.objects.filter(user__id=q_params['user_id'])[
+                        q_params['start']:q_params['offset']]
             elif q_params['offset'] and q_params['start']:
-                posts = Post.objects.filter(user__id=q_params['user_id'])[q_params['start']:q_params['start'] + q_params['offset']]
+                posts = Post.objects.filter(
+                    user__id=q_params['user_id'])[
+                        q_params['start']:q_params['start'] +
+                                          q_params['offset']]
             serializer = UserProfilePostSerializer(posts, many=True)
         else:
+            auth_user = User.objects.get(id=request.user.id)
             if not q_params['start'] and not q_params['offset']:
-                posts = Post.objects.all()
+                posts = Post.objects.filter(user__in=auth_user.following.all())
             elif not q_params['start'] or not q_params['offset']:
-                posts = Post.objects.all()[q_params['start']:q_params['offset']]
+                posts = Post.objects.filter(user__in=auth_user.following.all())[
+                        q_params['start']:q_params['offset']]
             elif q_params['offset'] and q_params['start']:
-                posts = Post.objects.all()[q_params['start']:q_params['start'] + q_params['offset']]
+                posts = Post.objects.filter(user__in=auth_user.following.all())[
+                        q_params['start']:q_params['start'] + q_params['offset']]
             serializer = FeedPostSerializer(posts, many=True)
 
         return Response(serializer.data)
@@ -342,5 +370,87 @@ class Feed(LoginRequiredMixin, ListView):
         return context
 
 
+class SubscriptionList(APIView):
+    """
+    List all user subscriptions, or create a new subscription.
+    """
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrUserOwnSubscriptions]
 
+    def get(self, request, follower_id):
+        try:
+            User.objects.get(id=follower_id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        subscriptions = Subscription.objects.filter(follower=follower_id)
+        serializer = SubscriptionSerializer(subscriptions, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, follower_id):
+        # has to provide who to follow
+        if not request.data.get('followee_id'):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            followee_id = request.data['followee_id']
+
+        # followee and followee have to exist
+        try:
+            User.objects.get(id=followee_id)
+            User.objects.get(id=follower_id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # user cannot follow himself or subscribe twice
+        if int(followee_id) == int(follower_id) or \
+            Subscription.objects.filter(followee=followee_id, follower=follower_id):
+            return Response(status=status.HTTP_409_CONFLICT)
+
+        serializer = SubscriptionSerializer(data={
+            'followee': followee_id,
+            'follower': follower_id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SubscriptionDetail(APIView):
+    """
+    Retrieve or delete a subscription.
+    """
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrUserOwnSubscriptions]
+
+    def get_object(self, followee_id, follower_id):
+        try:
+            return Subscription.objects.get(
+                followee=followee_id, follower=follower_id)
+        except Subscription.DoesNotExist:
+            raise Http404
+
+    def get(self, request, follower_id, followee_id):
+        subscription = self.get_object(followee_id, follower_id)
+        serializer = SubscriptionSerializer(subscription)
+        return Response(serializer.data)
+
+    def delete(self, request, follower_id, followee_id):
+        subscription = self.get_object(followee_id, follower_id)
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ExploreUserListView(ListView):
+
+    model = User
+    paginate_by = 15
+    ordering = ['last_name']
+    queryset = User.objects.filter(is_active=True).exclude(is_admin=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['auth_user'] = self.request.user
+        return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.exclude(id=self.request.user.id)
+        return queryset
 

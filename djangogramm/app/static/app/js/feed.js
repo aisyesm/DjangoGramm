@@ -5,7 +5,7 @@ const curScriptElement = document.currentScript
 document.addEventListener("DOMContentLoaded", function() {
     let start = 0
     const offset = 7
-    getPosts(start, offset)
+    getPosts(start, offset, true)
     const total_num_posts = curScriptElement.getAttribute('total_num_posts')
 
     window.addEventListener('scroll', function() {
@@ -19,10 +19,20 @@ document.addEventListener("DOMContentLoaded", function() {
     })
 })
 
-function getPosts (start, offset) {
+function getPosts (start, offset, firstTime=false) {
     fetch(`${window.location.origin}/app/posts?offset=${offset}&start=${start}`)
     .then (response => response.json())
-    .then (json => showPosts(json))
+    .then (json => {
+        if (json.length === 0 && firstTime) {
+            const el = document.createElement("div")
+            el.innerHTML = "You don't follow anyone yet <br> find people in <strong>'explore'</strong> link!"
+            el.style = 'text-align: center;'
+            document.getElementById('content').append(el)
+        }
+        else {
+            showPosts(json)
+        }
+    })
 }
 
 function showPosts (posts) {
@@ -44,7 +54,7 @@ function showPosts (posts) {
             imgAvatar.src = post.user_avatar
         }
         else {
-            imgAvatar.src = "/static/app/empty_user.jpg"
+            imgAvatar.src = "/static/app/img/empty_user.jpg"
         }
         userAvatarLink.append(imgAvatar)
         divAvatar.append(userAvatarLink)

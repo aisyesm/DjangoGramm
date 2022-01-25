@@ -19,7 +19,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
 from .helpers import get_timedelta_for_post
-from .models import User, Post
+from .models import User, Post, Subscription
 from .views import Authentication, UserEnterInfoView, Feed, Register, UserProfile, PostDetail
 from .forms import UserLoginForm, UserRegisterForm, UserFullInfoForm
 
@@ -350,8 +350,8 @@ class UserPostsTestCase(TestCase):
                 shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
 
 
-class RestAPITestCase(APITestCase):
-    fixtures = ['users.json', 'posts.json']
+class UserPostsAPITestCase(APITestCase):
+    fixtures = ['users.json', 'posts.json', 'subscriptions.json']
 
     def setUp(self) -> None:
         self.client = APIClient()
@@ -363,16 +363,106 @@ class RestAPITestCase(APITestCase):
         url = reverse('app:posts')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.client.login(email='test1@mail.com', password='test1')
+        user = User.objects.get(id=69)
+        self.client.force_authenticate(user=user)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 20)
+        self.assertEqual(len(response.data), 6)
         response = self.client.get(url + '?start=1&offset=2', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-        response = self.client.get(url + '?user_id=65', format='json')
+        response = self.client.get(url + '?user_id=62', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 15)
+        self.assertEqual(len(response.data), 2)
+
+
+class SubscriptionAPITestCase(APITestCase):
+    fixtures = ['users.json', 'posts.json', 'subscriptions.json']
+
+    def setUp(self) -> None:
+        self.client = APIClient()
+
+    def test_get_subscription(self):
+        """
+        Ensure api return correct json.
+        """
+        url = reverse('app:subscription', kwargs={'follower_id': 62, 'followee_id': 69})
+
+        # test user has to be authenticated
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # test user has to be admin or subscription owner
+        user = User.objects.get(email='test1@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='admin@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {'id': 4, 'followee': 69, 'follower': 62})
+
+    def test_delete_subscription(self):
+        """
+        Test delete single subscription route.
+        """
+        url = reverse('app:subscription', kwargs={'follower_id': 69, 'followee_id': 62})
+
+        # test user has to be authenticated
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # test user has to be admin or subscription owner
+        user = User.objects.get(email='test2@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='test1@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Subscription.objects.filter(followee=62, follower=69).first(), None)
+
+    def test_get_subscriptions(self):
+        """
+        Ensure api return correct json.
+        """
+        url = reverse('app:subscription_list', kwargs={'follower_id': 116})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='admin@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 4)
+
+    def test_post_subscriptions(self):
+        """
+        Ensure api creates a new subscription.
+        """
+        url = reverse('app:subscription_list', kwargs={'follower_id': 93})
+        response = self.client.post(url, data={'followee_id': 62})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='admin@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.post(url, data={'followee_id': 62})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data.get('followee'), 62)
+        self.assertEqual(response.data.get('follower'), 93)
+        self.assertEqual(len(Subscription.objects.filter(followee__id=62, follower__id=93)), 1)
+
+        # ensure cannot subscribe twice
+        response = self.client.post(url, data={'followee_id': 62})
+        self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # ensure cannot subscribe to himself
+        response = self.client.post(url, data={'followee_id': 91})
+        self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # ensure users have to exist
+        response = self.client.post(url, data={'followee_id': 91})
+        self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class HelperFuncTestCase(unittest.TestCase):
@@ -408,7 +498,7 @@ class HelperFuncTestCase(unittest.TestCase):
 
 
 class MySeleniumTests(StaticLiveServerTestCase):
-    fixtures = ['users.json', 'posts.json']
+    fixtures = ['users.json', 'posts.json', 'subscriptions.json']
 
     @classmethod
     def setUpClass(cls):
@@ -430,7 +520,7 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.find_element(By.XPATH, value="//i[@class='far fa-user-circle']").click()
         self.selenium.find_element(By.XPATH, value="//a[text()='Edit profile']").click()
         self.selenium.find_element(By.XPATH, value="//button[@id='cancel-btn']").click()
-        self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/65/profile')
+        self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/69/profile')
 
     def test_user_profile_posts_load_on_scroll(self):
         """
@@ -448,7 +538,7 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         time.sleep(5)  # wait for posts to load
         posts = self.selenium.find_elements(By.CLASS_NAME, value='post-area')
-        self.assertEqual(len(posts), 15)
+        self.assertEqual(len(posts), 11)
 
     def test_feed_posts_load_on_scroll(self):
         """
@@ -456,8 +546,8 @@ class MySeleniumTests(StaticLiveServerTestCase):
         Loads next 7 or remaining posts (if less than 7 left) on each scroll to the bottom.
         """
         self.selenium.get(f'{self.live_server_url}/app/')
-        self.selenium.find_element(By.ID, value='id_email').send_keys('test1@mail.com')
-        self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
+        self.selenium.find_element(By.ID, value='id_email').send_keys('test25@mail.com')
+        self.selenium.find_element(By.ID, value='id_password').send_keys('test25')
         self.selenium.find_element(By.NAME, value='proceed').click()
         time.sleep(5)  # wait for posts to load
         posts = self.selenium.find_elements(By.CSS_SELECTOR, value='.posts .card')
@@ -465,11 +555,7 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight - 807)")
         time.sleep(5)
         posts = self.selenium.find_elements(By.CSS_SELECTOR, value='.posts .card')
-        self.assertEqual(len(posts), 14)
-        self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-        time.sleep(5)
-        posts = self.selenium.find_elements(By.CSS_SELECTOR, value='.posts .card')
-        self.assertEqual(len(posts), 20)
+        self.assertEqual(len(posts), 13)
 
     def test_my_profile_link_redirects_to_logged_in_user(self):
         """Press My Profile from another user's profile."""
@@ -477,7 +563,7 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.find_element(By.ID, value='id_email').send_keys('test1@mail.com')
         self.selenium.find_element(By.ID, value='id_password').send_keys('test1')
         self.selenium.find_element(By.NAME, value='proceed').click()
-        self.selenium.get(f'{self.live_server_url}/app/66/profile')
+        self.selenium.get(f'{self.live_server_url}/app/104/profile')
         self.selenium.find_element(By.XPATH, value="//i[@class='far fa-user-circle']").click()
         self.selenium.find_element(By.XPATH, value="//a[text()='Profile']").click()
-        self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/65/profile')
+        self.assertEqual(self.selenium.current_url, f'{self.live_server_url}/app/69/profile')

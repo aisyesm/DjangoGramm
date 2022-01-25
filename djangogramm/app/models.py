@@ -55,10 +55,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=255,
         unique=True,
     )
-    first_name = models.CharField(blank=True, max_length=30)
-    last_name = models.CharField(blank=True, max_length=30)
+    first_name = models.CharField(blank=True, max_length=20)
+    last_name = models.CharField(blank=True, max_length=20)
     bio = models.TextField(blank=True, max_length=70)
     avatar = models.ImageField(null=True, blank=True, upload_to=user_avatar_path)
+    followers = models.ManyToManyField('self', through='Subscription', through_fields=('followee', 'follower'))
+    following = models.ManyToManyField('self', through='Subscription', through_fields=('follower', 'followee'))
 
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
@@ -112,4 +114,22 @@ class Post(models.Model):
         return reverse('app:post_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return f"{self.pub_date} {self.user}; caption: {self.caption}"
+        return f"{self.user}: (caption: {self.caption}, date: {self.pub_date})"
+
+
+class Subscription(models.Model):
+    followee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscription_followees')
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscription_followers')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['followee', 'follower'], name='unique_subscription'),
+            models.CheckConstraint(check=~models.Q(followee=models.F('follower')),
+                                   name='followee_and_follower_cannot_be_equal')
+        ]
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.followee}, {self.follower})"
+
+    def __str__(self):
+        return f"{self.followee} is followed by {self.follower}"
