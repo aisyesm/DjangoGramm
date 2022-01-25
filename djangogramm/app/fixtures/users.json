@@ -6,7 +6,7 @@
     "password": "pbkdf2_sha256$260000$No6JOgwl42S6KmuxL9HZKU$CHUfC2jwcWFwGKxjO2+7kTirg6imWxkcv34mImCP/58=",
     "last_login": "2022-01-21T08:10:27.291Z",
     "is_superuser": false,
-    "email": "aisyesm@gmail.com",
+    "email": "admin@mail.com",
     "first_name": "Admin",
     "last_name": "Admin",
     "bio": "I am the admin here",

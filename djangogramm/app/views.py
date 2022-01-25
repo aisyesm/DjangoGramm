@@ -442,6 +442,7 @@ class ExploreUserListView(ListView):
     model = User
     paginate_by = 15
     ordering = ['last_name']
+    queryset = User.objects.filter(is_active=True).exclude(is_admin=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -449,9 +450,7 @@ class ExploreUserListView(ListView):
         return context
 
     def get_queryset(self):
-        queryset = User.objects\
-            .filter(is_active=True)\
-            .exclude(is_admin=True)\
-            .exclude(id=self.request.user.id)
+        queryset = super().get_queryset()
+        queryset = queryset.exclude(id=self.request.user.id)
         return queryset
 
