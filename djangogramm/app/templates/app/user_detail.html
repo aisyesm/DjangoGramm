@@ -36,7 +36,7 @@
 </div>
 <div class="col-8">
     <h3 class="display-6 mb-4">{{ user.first_name }} {{ user.last_name }}</h3>
-    <div class="d-flex flex-row mb-4">
+    <div class="d-flex flex-row mb-4 stats">
         <div class="user-info">
             <p class="amount">{{ num_posts }}</p>
             {% if num_posts == 1 %}
@@ -45,7 +45,7 @@
                 <p>Posts</p>
             {% endif %}
         </div>
-        <div class="mx-3 mx-md-5 user-info">
+        <div class="mx-3 mx-md-5 user-info" data-bs-toggle="modal" data-bs-target="#followersModal">
             <p class="amount" id="num-followers">{{ followers|length }}</p>
             {% if followers|length == 1 %}
                 <p id="id-followers">Follower</p>
@@ -108,6 +108,40 @@
                 <button type="button" class="py-3 cancel-modal" data-bs-dismiss="modal">
                     Cancel
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Followers Modal -->
+<div class="modal fade" id="followersModal" tabindex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="followersModalLabel">Followers</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="followers">
+                    {% for follower in user.followers.all %}
+                    <li>
+                        <div class="follower">
+                            <a href="{% url 'app:profile' follower.id %}">
+                                {% if follower.avatar %}
+                                <img src="{{ follower.avatar.url }}" alt="avatar">
+                                {% else %}
+                                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'app:profile' follower.id %}">
+                                <span class="name ms-2">{{ follower.first_name }} {{ follower.last_name }}</span>
+                            </a>
+                        </div>
+                    </li>
+                    {% empty %}
+                        <li>No users yet.</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
