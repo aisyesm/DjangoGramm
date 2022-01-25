@@ -448,3 +448,10 @@ class ExploreUserListView(ListView):
         context['auth_user'] = self.request.user
         return context
 
+    def get_queryset(self):
+        queryset = User.objects\
+            .filter(is_active=True)\
+            .exclude(is_admin=True)\
+            .exclude(id=self.request.user.id)
+        return queryset
+

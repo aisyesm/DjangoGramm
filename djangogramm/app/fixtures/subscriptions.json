@@ -1,26 +1,242 @@
 [
 {
-    "model": "app.subscription",
-    "pk": 4,
-    "fields": {
-        "followee": 69,
-        "follower": 62
-    }
+  "model": "app.subscription",
+  "pk": 4,
+  "fields": {
+    "followee": 69,
+    "follower": 62
+  }
 },
 {
-    "model": "app.subscription",
-    "pk": 12,
-    "fields": {
-        "followee": 91,
-        "follower": 62
-    }
+  "model": "app.subscription",
+  "pk": 94,
+  "fields": {
+    "followee": 62,
+    "follower": 69
+  }
 },
 {
-    "model": "app.subscription",
-    "pk": 14,
-    "fields": {
-        "followee": 91,
-        "follower": 69
-    }
+  "model": "app.subscription",
+  "pk": 95,
+  "fields": {
+    "followee": 116,
+    "follower": 69
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 96,
+  "fields": {
+    "followee": 69,
+    "follower": 116
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 97,
+  "fields": {
+    "followee": 103,
+    "follower": 116
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 98,
+  "fields": {
+    "followee": 97,
+    "follower": 116
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 99,
+  "fields": {
+    "followee": 69,
+    "follower": 101
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 100,
+  "fields": {
+    "followee": 69,
+    "follower": 102
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 101,
+  "fields": {
+    "followee": 69,
+    "follower": 103
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 102,
+  "fields": {
+    "followee": 69,
+    "follower": 104
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 103,
+  "fields": {
+    "followee": 69,
+    "follower": 105
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 104,
+  "fields": {
+    "followee": 69,
+    "follower": 107
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 105,
+  "fields": {
+    "followee": 69,
+    "follower": 108
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 106,
+  "fields": {
+    "followee": 69,
+    "follower": 109
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 107,
+  "fields": {
+    "followee": 69,
+    "follower": 110
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 108,
+  "fields": {
+    "followee": 69,
+    "follower": 111
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 109,
+  "fields": {
+    "followee": 69,
+    "follower": 112
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 110,
+  "fields": {
+    "followee": 69,
+    "follower": 113
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 111,
+  "fields": {
+    "followee": 69,
+    "follower": 114
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 112,
+  "fields": {
+    "followee": 69,
+    "follower": 115
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 113,
+  "fields": {
+    "followee": 69,
+    "follower": 93
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 114,
+  "fields": {
+    "followee": 69,
+    "follower": 94
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 115,
+  "fields": {
+    "followee": 69,
+    "follower": 95
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 116,
+  "fields": {
+    "followee": 69,
+    "follower": 96
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 117,
+  "fields": {
+    "followee": 111,
+    "follower": 69
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 118,
+  "fields": {
+    "followee": 69,
+    "follower": 97
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 119,
+  "fields": {
+    "followee": 69,
+    "follower": 98
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 120,
+  "fields": {
+    "followee": 69,
+    "follower": 99
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 121,
+  "fields": {
+    "followee": 69,
+    "follower": 100
+  }
+},
+{
+  "model": "app.subscription",
+  "pk": 122,
+  "fields": {
+    "followee": 104,
+    "follower": 116
+  }
 }
 ]
