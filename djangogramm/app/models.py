@@ -149,4 +149,4 @@ class Like(models.Model):
         return f"{self.__class__.__name__}({self.post}, {self.user})"
 
     def __str__(self):
-        return f"{self.user} liked {self.post}"
+        return f"User {self.user.id} liked Post {self.post.id}"

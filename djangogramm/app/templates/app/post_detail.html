@@ -30,7 +30,11 @@
                 </div>
             </div>
             <div class="post-image"><img src="{{ post.image.url }}"></div>
-            <div class="caption">
+            <div class="like-container d-flex mt-3 ms-3">
+                <div class="heart d-flex align-items-center"><i class="fas fa-heart"></i></div>
+                <div class="number-likes ps-2 d-flex align-items-center">822 likes</div>
+            </div>
+            <div class="caption ms-3 mt-3">
                 <p>
                     <span class="author">
                         <a href="{% url 'app:profile' post.user.id %}">
@@ -40,7 +44,7 @@
                     {{ post.caption }}
                 </p>
             </div>
-            <div class="date">
+            <div class="date ms-3 my-3">
                 <p>{{ post_timedelta }}</p>
             </div>
         </div>
