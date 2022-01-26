@@ -32,9 +32,13 @@
             <div class="post-image"><img src="{{ post.image.url }}"></div>
             <div class="like-container d-flex mt-3 ms-3">
                 <div class="heart d-flex align-items-center"><i class="fas fa-heart"></i></div>
-                <div class="number-likes ps-2 d-flex align-items-center">822 likes</div>
+                <div class="number-likes ps-2 d-flex align-items-center">
+                    {% with total=post.likes.count %}
+                        {{ total }} like{{ total|pluralize }}
+                    {% endwith %}
+                </div>
             </div>
-            <div class="caption ms-3 mt-3">
+            <div class="caption mx-3 mt-3">
                 <p>
                     <span class="author">
                         <a href="{% url 'app:profile' post.user.id %}">
