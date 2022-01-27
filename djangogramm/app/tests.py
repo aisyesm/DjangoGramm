@@ -516,6 +516,46 @@ class LikeAPITestCase(APITestCase):
         response = self.client.post(url, data={'blabla': 1})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_get_like(self):
+        """
+        Ensure api return correct json.
+        """
+        url = reverse('app:like', kwargs={'post_id': 113, 'user_id': 69})
+
+        # test user has to be authenticated
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        user = User.objects.get(email='test1@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {'id': 1, 'user': 69, 'post': 113})
+
+        url = reverse('app:like', kwargs={'post_id': 30, 'user_id': 30})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_like(self):
+        """
+        Ensure api deletes the object.
+        """
+        url = reverse('app:like', kwargs={'post_id': 113, 'user_id': 69})
+
+        # test user has to be authenticated
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        user = User.objects.get(email='test1@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        print(response.data)
+
+        url = reverse('app:like', kwargs={'post_id': 30, 'user_id': 30})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 
 class HelperFuncTestCase(unittest.TestCase):
     """Unit test functions from helpers.py."""
