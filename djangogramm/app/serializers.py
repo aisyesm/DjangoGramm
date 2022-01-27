@@ -1,6 +1,6 @@
 from datetime import datetime
 from rest_framework import serializers
-from .models import Post, Subscription, User
+from .models import Post, Subscription, Like
 from .helpers import get_timedelta_for_post
 
 
@@ -34,3 +34,16 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = '__all__'
+
+
+class LikeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Like
+        fields = '__all__'
+
+    def validate(self, attrs):
+        """Check if user wants to add existing like."""
+        if Like.objects.filter(post=attrs['post'], user=attrs['user']):
+            raise serializers.ValidationError('user cannot like post twice')
+        return attrs

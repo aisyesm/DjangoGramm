@@ -484,7 +484,7 @@ class LikeAPITestCase(APITestCase):
         self.client.force_authenticate(user=user)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.data)
+        self.assertEqual(len(response.data), 3)
 
     def test_post_like(self):
         """
@@ -499,10 +499,22 @@ class LikeAPITestCase(APITestCase):
         self.client.force_authenticate(user=user)
         response = self.client.post(url, data={'user_id': 103})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        print(response.data)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.body), 4)
+        self.assertEqual(len(response.data), 4)
+
+        # test user cannot like twice
+        response = self.client.post(url, data={'user_id': 103})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 4)
+
+        response = self.client.post(url, data={'user_id': 'f'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.post(url, data={'blabla': 1})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class HelperFuncTestCase(unittest.TestCase):

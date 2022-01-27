@@ -18,15 +18,15 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
-from rest_framework import status, permissions
+from rest_framework import status, permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
-from .models import User, Post, Subscription
+from .models import User, Post, Subscription, Like
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
     UserAvatarUpdateForm
-from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer
+from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer, LikeSerializer
 from .permissions import IsAdminOrUserOwnSubscriptions
 
 
@@ -435,6 +435,31 @@ class SubscriptionDetail(APIView):
         subscription = self.get_object(followee_id, follower_id)
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class LikeList(generics.ListCreateAPIView):
+    serializer_class = LikeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        queryset = self.get_queryset(post_id=post_id)
+        serializer = self.get_serializer_class()(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        return Like.objects.filter(post=post_id)
+
+    def create(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        user_id = request.data.get('user_id')
+
+        serializer = self.get_serializer_class()(data={'user': user_id, 'post': post_id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ExploreUserListView(ListView):
