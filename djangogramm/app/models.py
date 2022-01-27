@@ -115,7 +115,7 @@ class Post(models.Model):
         return reverse('app:post_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return f"{self.user}: (caption: {self.caption}, date: {self.pub_date})"
+        return f"{self.id} {self.user}: (caption: {self.caption}, date: {self.pub_date})"
 
 
 class Subscription(models.Model):

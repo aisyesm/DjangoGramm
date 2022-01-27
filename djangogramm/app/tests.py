@@ -465,6 +465,46 @@ class SubscriptionAPITestCase(APITestCase):
         self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
 
 
+class LikeAPITestCase(APITestCase):
+    fixtures = ['users.json', 'posts.json', 'likes.json']
+
+    def setUp(self) -> None:
+        self.client = APIClient()
+
+    def test_get_likes(self):
+        """
+        Ensure api return correct json.
+        """
+        url = reverse('app:likes', kwargs={'post_id': 113})
+
+        # test user has to be authenticated
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='test1@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        print(response.data)
+
+    def test_post_like(self):
+        """
+        Ensure api creates a new object.
+        """
+        url = reverse('app:likes', kwargs={'post_id': 113})
+
+        # test user has to be authenticated
+        response = self.client.post(url, data={'user_id': 103})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(email='test1@mail.com')
+        self.client.force_authenticate(user=user)
+        response = self.client.post(url, data={'user_id': 103})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        print(response.data)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.body), 4)
+
+
 class HelperFuncTestCase(unittest.TestCase):
     """Unit test functions from helpers.py."""
 
