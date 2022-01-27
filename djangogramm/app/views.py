@@ -322,10 +322,13 @@ class PostDetail(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pub_date = self.get_object().pub_date
-        context['post_timedelta'] = get_timedelta_for_post(pub_date)
-        context['can_edit'] = True if self.request.user.pk == self.get_object().user.pk else False
-        context['auth_user'] = self.request.user
+        post = self.get_object()
+        auth_user = self.request.user
+        context['post_timedelta'] = get_timedelta_for_post(post.pub_date)
+        context['can_edit'] = True if auth_user.pk == post.user.pk else False
+        context['auth_user'] = auth_user
+        liked = Like.objects.filter(post=post.pk, user=auth_user.pk)
+        context['liked'] = True if liked else False
         return context
 
 

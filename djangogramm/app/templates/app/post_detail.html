@@ -115,3 +115,9 @@
     </div>
 </div>
 {% endblock %}
+
+
+{% block script %}
+{{ liked|json_script:"liked" }}
+<script src="{% static 'app/js/post_detail.js' %}"></script>
+{% endblock %}
