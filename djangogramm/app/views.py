@@ -438,6 +438,9 @@ class SubscriptionDetail(APIView):
 
 
 class LikeList(generics.ListCreateAPIView):
+    """
+    List all post likes, or add a new like.
+    """
     serializer_class = LikeSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -460,6 +463,36 @@ class LikeList(generics.ListCreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LikeDetail(generics.RetrieveDestroyAPIView):
+    """
+    Get or delete a like.
+    """
+    serializer_class = LikeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        user_id = kwargs.get('user_id')
+        try:
+            return Like.objects.get(post=post_id, user=user_id)
+        except Like.DoesNotExist:
+            raise Http404
+
+    def retrieve(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        user_id = kwargs.get('user_id')
+        like = self.get_object(post_id=post_id, user_id=user_id)
+        serializer = self.get_serializer_class()(like)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        user_id = kwargs.get('user_id')
+        like = self.get_object(post_id=post_id, user_id=user_id)
+        like.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ExploreUserListView(ListView):

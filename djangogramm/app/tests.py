@@ -550,7 +550,6 @@ class LikeAPITestCase(APITestCase):
         self.client.force_authenticate(user=user)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        print(response.data)
 
         url = reverse('app:like', kwargs={'post_id': 30, 'user_id': 30})
         response = self.client.delete(url)
