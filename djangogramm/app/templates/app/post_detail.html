@@ -32,7 +32,7 @@
             <div class="post-image"><img src="{{ post.image.url }}"></div>
             <div class="like-container d-flex mt-3 ms-3">
                 <div class="heart d-flex align-items-center" id="heart"><i></i></div>
-                <div class="number-likes ps-2 d-flex align-items-center">
+                <div class="number-likes ps-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#likesModal">
                     {% with total=post.likes.count %}
                         <span id="num-likes" class="me-1">{{ total }}</span>
                         <span id="like-word">like{{ total|pluralize }}</span>
@@ -112,6 +112,41 @@
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Likes Modal -->
+<div class="modal fade" id="likesModal" tabindex="-1" aria-labelledby="likesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="likesModalLabel">Likes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="ppl-liked">
+                    {% for person in post.likes.all %}
+                    <li>
+                        <div class="person-liked">
+                            <a href="{% url 'app:profile' person.id %}">
+                                {% if person.avatar %}
+                                <img src="{{ person.avatar.url }}" alt="avatar">
+                                {% else %}
+                                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'app:profile' person.id %}">
+                                <span class="name ms-2">{{ person.first_name }} {{ person.last_name }}</span>
+                            </a>
+                        </div>
+                    </li>
+                    {% empty %}
+                        <li>You don't have followers</li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
 </div>
