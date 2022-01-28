@@ -120,5 +120,7 @@
 
 {% block script %}
 {{ liked|json_script:"liked" }}
+{{ post.id|json_script:"postId" }}
+{{ auth_user.id|json_script:"userId" }}
 <script src="{% static 'app/js/post_detail.js' %}"></script>
 {% endblock %}
