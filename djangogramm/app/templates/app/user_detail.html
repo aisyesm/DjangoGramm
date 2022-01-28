@@ -46,12 +46,10 @@
             {% endif %}
         </div>
         <div class="mx-3 mx-md-5 user-info" data-bs-toggle="modal" data-bs-target="#followersModal">
-            <p class="amount" id="num-followers">{{ followers|length }}</p>
-            {% if followers|length == 1 %}
-                <p id="id-followers">Follower</p>
-            {% else %}
-                <p id="id-followers">Followers</p>
-            {% endif %}
+            {% with total=followers|length %}
+                <p class="amount" id="num-followers">{{ total }}</p>
+                <p id="id-followers">Follower{{ total|pluralize }}</p>
+            {% endwith %}
         </div>
         <div class="user-info" data-bs-toggle="modal" data-bs-target="#followingModal">
             <p class="amount">{{ following|length }}</p>

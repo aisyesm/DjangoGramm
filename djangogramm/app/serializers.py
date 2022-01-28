@@ -7,8 +7,8 @@ from .helpers import get_timedelta_for_post
 class UserProfilePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['id', 'image']
-        read_only_fields = ['id', 'image']
+        fields = ['id', 'image', 'likes']
+        read_only_fields = ['id', 'image', 'likes']
 
 
 class FeedPostSerializer(serializers.ModelSerializer):
