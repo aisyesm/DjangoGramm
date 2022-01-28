@@ -31,7 +31,7 @@
             </div>
             <div class="post-image"><img src="{{ post.image.url }}"></div>
             <div class="like-container d-flex mt-3 ms-3">
-                <div class="heart d-flex align-items-center"><i class="fas fa-heart"></i></div>
+                <div class="heart d-flex align-items-center"><i id="id-heart"></i></div>
                 <div class="number-likes ps-2 d-flex align-items-center">
                     {% with total=post.likes.count %}
                         {{ total }} like{{ total|pluralize }}

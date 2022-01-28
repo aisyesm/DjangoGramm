@@ -41,6 +41,10 @@
     font-size: 1.5em;
 }
 
+.red-heart {
+    color: #ed4956;
+}
+
 .caption p {
     margin: 0;
     font-family: 'Nunito', sans-serif;
