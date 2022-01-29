@@ -74,8 +74,30 @@ function showPosts (posts) {
         imgPhoto.src = post.image
         divPhoto.append(imgPhoto)
 
+        const likeContainer = document.createElement('div')
+        likeContainer.className = 'like-container d-flex mt-3 ms-3'
+        const heart = document.createElement('div')
+        heart.className = 'heart d-flex align-items-center'
+        heart.id = 'heart'
+        const heartSvg = document.createElement('i')
+        heartSvg.className = 'far fa-heart'
+        heart.appendChild(heartSvg)
+        likeContainer.appendChild(heart)
+        const numberLikes = document.createElement('div')
+        numberLikes.className = 'number-likes ps-2 d-flex align-items-center'
+        const number = document.createElement('span')
+        number.className = 'me-1'
+        number.id = 'num-likes'
+        const likeWord = document.createElement('span')
+        likeWord.id = 'like-word'
+        number.textContent = '12'
+        likeWord.textContent = 'likes'
+        numberLikes.appendChild(number)
+        numberLikes.appendChild(likeWord)
+        likeContainer.appendChild(numberLikes)
+
         const divCaption = document.createElement('div')
-        divCaption.classList.add('caption')
+        divCaption.className = 'caption mx-3 mt-3'
         const pCaption = document.createElement('p')
         const spanCaption = document.createElement('span')
         spanCaption.classList.add('author')
@@ -85,13 +107,14 @@ function showPosts (posts) {
         divCaption.append(pCaption)
 
         const divDate = document.createElement('div')
-        divDate.classList.add('date')
+        divDate.className = 'date ms-3 my-3'
         const pDate = document.createElement('p')
         pDate.textContent = `${post.pub_date}`
         divDate.append(pDate)
 
         divPost.append(divAuthorPost)
         divPost.append(divPhoto)
+        divPost.append(likeContainer)
         divPost.append(divCaption)
         divPost.append(divDate)
 

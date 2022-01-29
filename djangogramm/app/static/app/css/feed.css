@@ -18,7 +18,7 @@
     object-fit: cover;
 }
 
-.author {
+.author, .number-likes {
     font-weight: bold;
     font-family: 'Nunito', sans-serif;
     font-size: 15px;
@@ -40,13 +40,21 @@
   object-fit: cover;
 }
 
-.caption, .date {
-  padding-left: 10px;
+.heart {
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.number-likes {
+    cursor: pointer;
+}
+
+.red-heart {
+    color: #ed4956;
 }
 
 .caption p {
   margin: 0;
-  padding: 10px 0;
   font-family: 'Nunito', sans-serif;
   font-size: 15px;
   color: #181818;
@@ -54,7 +62,6 @@
 
 .date p {
     margin: 0;
-    padding-bottom: 15px;
     font-family: 'Nunito', sans-serif;
     font-size: 10px;
     color: grey;
