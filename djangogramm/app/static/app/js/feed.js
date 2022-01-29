@@ -83,18 +83,19 @@ function showPosts (posts) {
         heartSvg.className = 'far fa-heart'
         heart.appendChild(heartSvg)
         likeContainer.appendChild(heart)
-        const numberLikes = document.createElement('div')
-        numberLikes.className = 'number-likes ps-2 d-flex align-items-center'
+        const amountContainer = document.createElement('div')
+        amountContainer.className = 'number-likes ps-2 d-flex align-items-center'
         const number = document.createElement('span')
         number.className = 'me-1'
         number.id = 'num-likes'
         const likeWord = document.createElement('span')
         likeWord.id = 'like-word'
-        number.textContent = '12'
-        likeWord.textContent = 'likes'
-        numberLikes.appendChild(number)
-        numberLikes.appendChild(likeWord)
-        likeContainer.appendChild(numberLikes)
+        let numberOfLikes = post.likes.length
+        number.textContent = numberOfLikes
+        likeWord.textContent = numberOfLikes === 1 ? 'like' : 'likes'
+        amountContainer.appendChild(number)
+        amountContainer.appendChild(likeWord)
+        likeContainer.appendChild(amountContainer)
 
         const divCaption = document.createElement('div')
         divCaption.className = 'caption mx-3 mt-3'
