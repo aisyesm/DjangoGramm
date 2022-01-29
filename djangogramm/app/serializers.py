@@ -18,8 +18,8 @@ class FeedPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name', 'likes']
-        read_only_fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name', 'likes']
+        fields = ['id', 'image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name', 'likes']
+        read_only_fields = ['id', 'image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name', 'likes']
 
     def to_representation(self, instance):
         """Convert `pub_date` to time delta."""

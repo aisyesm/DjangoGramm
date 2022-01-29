@@ -16,6 +16,7 @@
 {% endblock %}
 
 {% block script %}
+{{ auth_user.id|json_script:"authUserId" }}
 <script src="{% static 'app/js/feed.js' %}" total_num_posts={{ total_num_posts }}></script>
 {% endblock %}
 
