@@ -147,7 +147,17 @@ function showPosts (posts) {
         const img = document.createElement('img')
         img.src = post.image
         hyperlink.appendChild(img)
+        const numLikes = document.createElement('div')
+        numLikes.className = 'num-likes'
+        const i = document.createElement('i')
+        i.className = 'fas fa-heart me-2'
+        const num = document.createElement('span')
+        num.textContent = post.likes.length
+        numLikes.appendChild(i)
+        numLikes.appendChild(num)
+        hyperlink.appendChild(numLikes)
         div.appendChild(hyperlink)
         userPosts.append(div)
+
     })
 }

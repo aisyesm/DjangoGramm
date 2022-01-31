@@ -97,6 +97,7 @@ class Post(models.Model):
     image = models.ImageField(upload_to=user_posts_path)
     caption = models.CharField(max_length=200, blank=True)
     pub_date = models.DateTimeField('date posted', auto_now_add=True)
+    likes = models.ManyToManyField(User, through='Like', related_name='users_liked')
 
     class Meta:
         ordering = ['-pub_date']
@@ -114,7 +115,7 @@ class Post(models.Model):
         return reverse('app:post_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return f"{self.user}: (caption: {self.caption}, date: {self.pub_date})"
+        return f"{self.id} {self.user}: (caption: {self.caption}, date: {self.pub_date})"
 
 
 class Subscription(models.Model):
@@ -133,3 +134,19 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"{self.followee} is followed by {self.follower}"
+
+
+class Like(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['post', 'user'], name='only_one_like_from_user'),
+        ]
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.post}, {self.user})"
+
+    def __str__(self):
+        return f"User {self.user.id} liked Post {self.post.id}"

@@ -1,14 +1,14 @@
 from datetime import datetime
 from rest_framework import serializers
-from .models import Post, Subscription, User
+from .models import Post, Subscription, Like, User
 from .helpers import get_timedelta_for_post
 
 
 class UserProfilePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['id', 'image']
-        read_only_fields = ['id', 'image']
+        fields = ['id', 'image', 'likes']
+        read_only_fields = ['id', 'image', 'likes']
 
 
 class FeedPostSerializer(serializers.ModelSerializer):
@@ -18,8 +18,8 @@ class FeedPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name']
-        read_only_fields = ['image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name']
+        fields = ['id', 'image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name', 'likes']
+        read_only_fields = ['id', 'image', 'caption', 'pub_date', 'user', 'user_avatar', 'first_name', 'last_name', 'likes']
 
     def to_representation(self, instance):
         """Convert `pub_date` to time delta."""
@@ -34,3 +34,24 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = '__all__'
+
+
+class LikeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Like
+        fields = '__all__'
+
+    def validate(self, attrs):
+        """Check if user wants to add existing like."""
+        if Like.objects.filter(post=attrs['post'], user=attrs['user']):
+            raise serializers.ValidationError('user cannot like post twice')
+        return attrs
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'avatar']
+        read_only_fields = ['first_name', 'last_name', 'avatar']

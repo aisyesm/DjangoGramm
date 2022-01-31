@@ -18,15 +18,16 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
-from rest_framework import status, permissions
+from rest_framework import status, permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
-from .models import User, Post, Subscription
+from .models import User, Post, Subscription, Like
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
     UserAvatarUpdateForm
-from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer
+from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer, LikeSerializer, \
+    UserSerializer
 from .permissions import IsAdminOrUserOwnSubscriptions
 
 
@@ -322,10 +323,13 @@ class PostDetail(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pub_date = self.get_object().pub_date
-        context['post_timedelta'] = get_timedelta_for_post(pub_date)
-        context['can_edit'] = True if self.request.user.pk == self.get_object().user.pk else False
-        context['auth_user'] = self.request.user
+        post = self.get_object()
+        auth_user = self.request.user
+        context['post_timedelta'] = get_timedelta_for_post(post.pub_date)
+        context['can_edit'] = True if auth_user.pk == post.user.pk else False
+        context['auth_user'] = auth_user
+        liked = Like.objects.filter(post=post.pk, user=auth_user.pk)
+        context['liked'] = True if liked else False
         return context
 
 
@@ -437,6 +441,64 @@ class SubscriptionDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class LikeList(generics.ListCreateAPIView):
+    """
+    List all post likes, or add a new like.
+    """
+    serializer_class = LikeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        queryset = self.get_queryset(post_id=post_id)
+        serializer = self.get_serializer_class()(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        return Like.objects.filter(post=post_id)
+
+    def create(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        user_id = request.data.get('user_id')
+
+        serializer = self.get_serializer_class()(data={'user': user_id, 'post': post_id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LikeDetail(generics.RetrieveDestroyAPIView):
+    """
+    Get or delete a like.
+    """
+    serializer_class = LikeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        user_id = kwargs.get('user_id')
+        try:
+            return Like.objects.get(post=post_id, user=user_id)
+        except Like.DoesNotExist:
+            raise Http404
+
+    def retrieve(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        user_id = kwargs.get('user_id')
+        like = self.get_object(post_id=post_id, user_id=user_id)
+        serializer = self.get_serializer_class()(like)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        user_id = kwargs.get('user_id')
+        like = self.get_object(post_id=post_id, user_id=user_id)
+        like.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class ExploreUserListView(ListView):
 
     model = User
@@ -453,4 +515,10 @@ class ExploreUserListView(ListView):
         queryset = super().get_queryset()
         queryset = queryset.exclude(id=self.request.user.id)
         return queryset
+
+
+class UserInfoAPI(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
 

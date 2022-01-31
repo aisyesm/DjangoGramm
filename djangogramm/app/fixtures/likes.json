@@ -1,0 +1,26 @@
+[
+{
+  "model": "app.like",
+  "pk": 1,
+  "fields": {
+    "post": 113,
+    "user": 69
+  }
+},
+{
+  "model": "app.like",
+  "pk": 3,
+  "fields": {
+    "post": 113,
+    "user": 101
+  }
+},
+{
+  "model": "app.like",
+  "pk": 4,
+  "fields": {
+    "post": 113,
+    "user": 102
+  }
+}
+]

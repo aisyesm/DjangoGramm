@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import User, Post, Subscription
+from .models import User, Post, Subscription, Like
 
 
 class UserCreationForm(forms.ModelForm):
@@ -84,10 +84,15 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ('id', 'followee', 'follower')
 
 
+class LikeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'post_id', 'user_id')
+
+
 # Now register the new UserAdmin...
 admin.site.register(User, UserAdmin)
 admin.site.register(Post, PostAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
+admin.site.register(Like, LikeAdmin)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
 admin.site.unregister(Group)
