@@ -31,10 +31,30 @@ document.addEventListener("DOMContentLoaded", function() {
             modalList.innerHTML = ''
             likesArray.forEach((personId) => {
                 const personItem = document.createElement('li')
+                personItem.className = 'person-liked'
                 fetch(`${window.location.origin}/app/user/${personId}/fullname`)
-                  .then(response => response.json())
-                  .then(data => console.log(data));
-                personItem.textContent = personId
+                    .then(response => response.json())
+                    .then(data => {
+                        const avatarLink = document.createElement('a')
+                        avatarLink.href = `${window.location.origin}/app/${personId}/profile`
+                        const avatarImg = document.createElement('img')
+                        if (data.avatar) {
+                          avatarImg.src = data.avatar
+                        }
+                        else {
+                          avatarImg.src = "/static/app/img/empty_user.jpg"
+                        }
+                        avatarLink.appendChild(avatarImg)
+                        personItem.appendChild(avatarLink)
+
+                        const nameLink = document.createElement('a')
+                        nameLink.href = `${window.location.origin}/app/${personId}/profile`
+                        const fullName = document.createElement('span')
+                        fullName.textContent = `${data.first_name} ${data.last_name}`
+                        fullName.className = 'name ms-2'
+                        nameLink.appendChild(fullName)
+                        personItem.appendChild(nameLink)
+                    });
                 modalList.appendChild(personItem)
             })
         }
