@@ -1,6 +1,6 @@
 from datetime import datetime
 from rest_framework import serializers
-from .models import Post, Subscription, Like
+from .models import Post, Subscription, Like, User
 from .helpers import get_timedelta_for_post
 
 
@@ -47,3 +47,11 @@ class LikeSerializer(serializers.ModelSerializer):
         if Like.objects.filter(post=attrs['post'], user=attrs['user']):
             raise serializers.ValidationError('user cannot like post twice')
         return attrs
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+        read_only_fields = ['first_name', 'last_name']

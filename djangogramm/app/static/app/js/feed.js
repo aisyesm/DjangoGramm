@@ -17,6 +17,28 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     })
+
+    const likesModal = document.getElementById('likesModal')
+    likesModal.addEventListener('show.bs.modal', function (event) {
+        const link = event.relatedTarget
+        const likes = link.getAttribute('data-bs-likes')
+        const likesArray = likes.split(",");
+        const modalList = likesModal.querySelector('.ppl-liked')
+        if (likesArray.length === 1 && likesArray[0] === '') {
+            modalList.textContent = "No likes yet"
+        }
+        else {
+            modalList.innerHTML = ''
+            likesArray.forEach((personId) => {
+                const personItem = document.createElement('li')
+                fetch(`${window.location.origin}/app/user/${personId}/fullname`)
+                  .then(response => response.json())
+                  .then(data => console.log(data));
+                personItem.textContent = personId
+                modalList.appendChild(personItem)
+            })
+        }
+    })
 })
 
 function getPosts (start, offset, firstTime=false) {
@@ -87,6 +109,9 @@ function showPosts (posts) {
         likeContainer.appendChild(heart)
         const amountContainer = document.createElement('div')
         amountContainer.className = 'number-likes ps-2 d-flex align-items-center'
+        amountContainer.setAttribute('data-bs-toggle', 'modal')
+        amountContainer.setAttribute('data-bs-target', '#likesModal')
+        amountContainer.setAttribute('data-bs-likes', post.likes)
         const number = document.createElement('span')
         number.className = 'me-1'
         number.id = 'num-likes'

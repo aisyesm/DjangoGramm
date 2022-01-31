@@ -26,7 +26,8 @@ from .helpers import get_timedelta_for_post
 from .models import User, Post, Subscription, Like
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
     UserAvatarUpdateForm
-from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer, LikeSerializer
+from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer, LikeSerializer, \
+    UserSerializer
 from .permissions import IsAdminOrUserOwnSubscriptions
 
 
@@ -514,4 +515,10 @@ class ExploreUserListView(ListView):
         queryset = super().get_queryset()
         queryset = queryset.exclude(id=self.request.user.id)
         return queryset
+
+
+class UserInfoAPI(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
