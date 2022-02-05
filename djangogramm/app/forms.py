@@ -49,6 +49,12 @@ class UserEditInfoForm(ModelForm):
         }
 
 
+class UserEditInfoCloudinaryForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['avatar']
+
+
 class AddPostForm(ModelForm):
     class Meta:
         model = Post

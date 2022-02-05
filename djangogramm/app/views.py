@@ -25,7 +25,7 @@ from rest_framework.response import Response
 from .helpers import get_timedelta_for_post
 from .models import User, Post, Subscription, Like
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
-    UserAvatarUpdateForm
+    UserAvatarUpdateForm, UserEditInfoCloudinaryForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer, LikeSerializer, \
     UserSerializer
 from .permissions import IsAdminOrUserOwnSubscriptions
@@ -522,3 +522,24 @@ class UserInfoAPI(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
+def upload(request):
+    context = dict(backend_form=UserEditInfoCloudinaryForm())
+
+    if request.method == 'POST':
+        form = UserEditInfoCloudinaryForm(request.POST, request.FILES)
+        context['posted'] = form.instance
+        if form.is_valid():
+            form.save()
+
+    return render(request, 'app/upload.html', context)
+
+
+class Upload(UpdateView):
+    model = User
+    form_class = UserEditInfoCloudinaryForm
+    template_name = 'app/upload.html'
+    context_object_name = 'user'
+
+    def get_success_url(self):
+        return reverse("app:profile", args=[self.request.user.id])

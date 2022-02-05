@@ -4,6 +4,18 @@ from django.contrib.auth.models import (
 )
 from django.urls import reverse
 from PIL import Image
+from cloudinary.models import CloudinaryField as BaseCloudinaryField
+
+
+class CloudinaryField(BaseCloudinaryField):
+    def upload_options(self, instance):
+        return {
+            'folder': f"media/{instance.id}/avatar/",
+        }
+
+    def pre_save(self, model_instance, add):
+        self.options.update(self.upload_options(model_instance))
+        return super().pre_save(model_instance, add)
 
 
 class MyUserManager(BaseUserManager):
@@ -58,7 +70,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(blank=True, max_length=20)
     last_name = models.CharField(blank=True, max_length=20)
     bio = models.TextField(blank=True, max_length=70)
-    avatar = models.ImageField(null=True, blank=True, upload_to=user_avatar_path)
+    # avatar = models.ImageField(null=True, blank=True, upload_to=user_avatar_path)
+    avatar = CloudinaryField('image')
     followers = models.ManyToManyField('self', through='Subscription', through_fields=('followee', 'follower'))
     following = models.ManyToManyField('self', through='Subscription', through_fields=('follower', 'followee'))
 
@@ -78,14 +91,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         return True
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # saving image first
-        if self.avatar:
-            with Image.open(self.avatar.path) as img:
-                if img.height > 512 or img.width > 512:
-                    size = (512, 512)
-                    img.thumbnail(size)
-                    img.save(self.avatar.path, format="JPEG")  # saving image at the same path
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)  # saving image first
+    #     if self.avatar:
+    #         with Image.open(self.avatar.path) as img:
+    #             if img.height > 512 or img.width > 512:
+    #                 size = (512, 512)
+    #                 img.thumbnail(size)
+    #                 img.save(self.avatar.path, format="JPEG")  # saving image at the same path
 
     @property
     def is_staff(self):
