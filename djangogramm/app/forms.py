@@ -20,17 +20,29 @@ class UserRegisterForm(Form):
                                                              'class': 'form-control'}))
 
 
-class UserFullInfoForm(Form):
-    first_name = CharField(label='', max_length=30, widget=TextInput(attrs={'placeholder': 'e.g. John',
-                                                                            'class': 'form-control'}))
-    last_name = CharField(label='', max_length=30, widget=TextInput(attrs={'placeholder': 'e.g. Smith',
-                                                                           'class': 'form-control'}))
-    bio = CharField(label='Bio', required=False, max_length=400,
-                    widget=Textarea(attrs={'placeholder': 'Tell the world something about yourself...',
-                                           'class': 'form-control',
-                                           'rows': '5'}))
-    avatar = ImageField(label='Photo', required=False, widget=FileInput(attrs={'style': 'display: none;',
-                                                                               'onchange': 'loadFile(event)'}))
+class UserFullInfoForm(ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(UserFullInfoForm, self).__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'bio', 'avatar']
+        widgets = {
+            'first_name': TextInput(attrs={'class': 'form-control',
+                                           'placeholder': 'e.g. John',
+                                           }),
+            'last_name': TextInput(attrs={'class': 'form-control',
+                                          'placeholder': 'e.g. Smith',
+                                          }),
+            'bio': Textarea(attrs={'class': 'form-control',
+                                   'rows': '4',
+                                   'placeholder': 'Tell the world something about yourself...',
+                                   },),
+            'avatar': FileInput(attrs={'style': 'display: none;', 'onchange': 'loadFile(event)'})
+        }
 
 
 class UserAvatarUpdateForm(Form):

@@ -150,7 +150,9 @@ class UserEnterInfoView(UserPassesTestMixin, LoginRequiredMixin, FormView):
             user.first_name = form.cleaned_data.get('first_name')
             user.last_name = form.cleaned_data.get('last_name')
             user.bio = form.cleaned_data.get('bio')
-            user.avatar = form.files.get('avatar')
+            avatar_image = form.files.get('avatar')
+            if avatar_image:
+                user.avatar = avatar_image
             user.save()
             self.success_url = reverse('app:profile', args=[user.id])
         return super().form_valid(form)
@@ -521,18 +523,6 @@ class UserInfoAPI(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-
-def upload(request):
-    context = dict(backend_form=UserEditInfoCloudinaryForm())
-
-    if request.method == 'POST':
-        form = UserEditInfoCloudinaryForm(request.POST, request.FILES)
-        context['posted'] = form.instance
-        if form.is_valid():
-            form.save()
-
-    return render(request, 'app/upload.html', context)
 
 
 class Upload(UpdateView):

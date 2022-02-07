@@ -7,6 +7,9 @@ from PIL import Image
 from cloudinary.models import CloudinaryField as BaseCloudinaryField
 
 
+EMPTY_USER_IMAGE = 'image/upload/v1644059525/media/empty_user_avatar'
+
+
 class CloudinaryField(BaseCloudinaryField):
     def upload_options(self, instance):
         return {
@@ -52,6 +55,11 @@ class MyUserManager(BaseUserManager):
         return user
 
 
+def user_avatar_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/avatar/<filename>
+    return f'{instance.id}/avatar/{filename}'
+
+
 def user_posts_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/posts/<filename>
     return f'{instance.user.id}/posts/{filename}'
@@ -66,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(blank=True, max_length=20)
     last_name = models.CharField(blank=True, max_length=20)
     bio = models.TextField(blank=True, max_length=70)
-    avatar = CloudinaryField('image')
+    avatar = CloudinaryField('image', default=EMPTY_USER_IMAGE)
     followers = models.ManyToManyField('self', through='Subscription', through_fields=('followee', 'follower'))
     following = models.ManyToManyField('self', through='Subscription', through_fields=('follower', 'followee'))
 

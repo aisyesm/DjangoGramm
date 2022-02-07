@@ -7,3 +7,4 @@ django-environ==0.8.1
 django-cors-headers==3.10.1
 mysqlclient==2.1.0
 python-dotenv==0.19.2
+cloudinary==1.28.1
