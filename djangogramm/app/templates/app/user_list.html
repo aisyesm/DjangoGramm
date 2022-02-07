@@ -3,6 +3,7 @@
 {% block head %}
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'app/css/user_list.css' %}">
+{% load cloudinary %}
 {{ block.super }}
 {% endblock %}
 
@@ -14,7 +15,7 @@
         <div class="user">
             <a href="{% url 'app:profile' user.id %}">
                 {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" alt="avatar">
+                    {% cloudinary user.avatar format="jpg" alt="avatar" %}
                 {% else %}
                 <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
                 {% endif %}

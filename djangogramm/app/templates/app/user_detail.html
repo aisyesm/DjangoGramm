@@ -2,6 +2,7 @@
 {% block head %}
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'app/css/user_detail.css' %}">
+{% load cloudinary %}
 {{ block.super }}
 {% endblock %}
 
@@ -11,7 +12,7 @@
         {% if can_edit %}
             {% if user.avatar %}
                 <div data-bs-toggle="modal" data-bs-target="#editAvatarModal">
-                    <img src="{{ user.avatar.url }}" class="avatar-img avatar-can-change" alt="avatar here">
+                    {% cloudinary user.avatar format="jpg" class="avatar-img avatar-can-change" alt="avatar here" %}
                 </div>
             {% else %}
                 <label for="id_avatar">

@@ -11,6 +11,7 @@ class CloudinaryField(BaseCloudinaryField):
     def upload_options(self, instance):
         return {
             'folder': f"media/{instance.id}/avatar/",
+            'public_id': f"avatar_{instance.id}",
         }
 
     def pre_save(self, model_instance, add):
@@ -51,11 +52,6 @@ class MyUserManager(BaseUserManager):
         return user
 
 
-def user_avatar_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/avatar/<filename>
-    return f'{instance.id}/avatar/{filename}'
-
-
 def user_posts_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/posts/<filename>
     return f'{instance.user.id}/posts/{filename}'
@@ -70,7 +66,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(blank=True, max_length=20)
     last_name = models.CharField(blank=True, max_length=20)
     bio = models.TextField(blank=True, max_length=70)
-    # avatar = models.ImageField(null=True, blank=True, upload_to=user_avatar_path)
     avatar = CloudinaryField('image')
     followers = models.ManyToManyField('self', through='Subscription', through_fields=('followee', 'follower'))
     following = models.ManyToManyField('self', through='Subscription', through_fields=('follower', 'followee'))
