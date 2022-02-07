@@ -58,7 +58,7 @@ class UserEditInfoForm(ModelForm):
         widgets = {
             'first_name': TextInput(attrs={'class': 'form-control'}),
             'last_name': TextInput(attrs={'class': 'form-control'}),
-            'bio': Textarea(attrs={'class': 'form-control', 'rows': '5'}),
+            'bio': Textarea(attrs={'class': 'form-control', 'rows': '4'}),
             'avatar': FileInput(attrs={'style': 'display: none;', 'onchange': 'loadFile(event)'})
         }
 
