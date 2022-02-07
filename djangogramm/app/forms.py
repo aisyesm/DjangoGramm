@@ -41,7 +41,9 @@ class UserFullInfoForm(ModelForm):
                                    'rows': '4',
                                    'placeholder': 'Tell the world something about yourself...',
                                    },),
-            'avatar': FileInput(attrs={'style': 'display: none;', 'onchange': 'loadFile(event)'})
+            'avatar': FileInput(attrs={'style': 'display: none;',
+                                       'onchange': 'loadFile(event)',
+                                       })
         }
 
 

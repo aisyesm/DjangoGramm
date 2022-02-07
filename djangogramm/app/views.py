@@ -23,7 +23,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
-from .models import User, Post, Subscription, Like
+from .models import User, Post, Subscription, Like, EMPTY_USER_IMAGE
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
     UserAvatarUpdateForm, UserEditInfoCloudinaryForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer, LikeSerializer, \
@@ -208,6 +208,7 @@ class UserProfile(LoginRequiredMixin, DetailView):
         context['followers'] = page_user.followers.all()
         context['following'] = page_user.following.all()
         context['num_posts'] = page_user.post_set.count()
+        context['empty_avatar'] = True if str(page_user.avatar) == 'media/empty_user_avatar' else False
         return context
 
 
@@ -229,7 +230,7 @@ class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, FormView):
         delete_avatar = request.POST.get('delete_avatar')
         if delete_avatar and delete_avatar == 'true':
             user = User.objects.get(email=self.request.user.email)
-            user.avatar = None
+            user.avatar = EMPTY_USER_IMAGE
             user.save()
             return HttpResponseRedirect(reverse('app:profile', args=[user.id]))
         return super().post(request, args, kwargs)
