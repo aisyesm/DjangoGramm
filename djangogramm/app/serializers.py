@@ -5,6 +5,8 @@ from .helpers import get_timedelta_for_post
 
 
 class UserProfilePostSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+
     class Meta:
         model = Post
         fields = ['id', 'image', 'likes']
@@ -15,6 +17,7 @@ class FeedPostSerializer(serializers.ModelSerializer):
     user_avatar = serializers.ImageField(source='user.avatar')
     first_name = serializers.CharField(source='user.first_name')
     last_name = serializers.CharField(source='user.last_name')
+    image = serializers.ImageField()
 
     class Meta:
         model = Post
