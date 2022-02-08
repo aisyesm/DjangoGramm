@@ -50,6 +50,7 @@ class LikeSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField()
 
     class Meta:
         model = User
