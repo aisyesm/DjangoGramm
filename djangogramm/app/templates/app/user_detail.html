@@ -120,11 +120,7 @@
                     <li>
                         <div class="follower">
                             <a href="{% url 'app:profile' follower.id %}">
-                                {% if follower.avatar %}
-                                <img src="{{ follower.avatar.url }}" alt="avatar">
-                                {% else %}
-                                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
-                                {% endif %}
+                                {% cloudinary follower.avatar format="jpg" alt="avatar" %}
                             </a>
                             <a href="{% url 'app:profile' follower.id %}">
                                 <span class="name ms-2">{{ follower.first_name }} {{ follower.last_name }}</span>
@@ -155,11 +151,7 @@
                     <li>
                         <div class="followee">
                             <a href="{% url 'app:profile' followee.id %}">
-                                {% if followee.avatar %}
-                                <img src="{{ followee.avatar.url }}" alt="avatar">
-                                {% else %}
-                                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
-                                {% endif %}
+                                {% cloudinary followee.avatar format="jpg" alt="avatar" %}
                             </a>
                             <a href="{% url 'app:profile' followee.id %}">
                                 <span class="name ms-2">{{ followee.first_name }} {{ followee.last_name }}</span>
