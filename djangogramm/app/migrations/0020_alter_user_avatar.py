@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='avatar',
-            field=app.models.CloudinaryField(max_length=255, verbose_name='image'),
+            field=app.models.CloudinaryAvatarField(max_length=255, verbose_name='image'),
         ),
     ]
