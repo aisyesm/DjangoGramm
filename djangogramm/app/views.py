@@ -524,13 +524,3 @@ class UserInfoAPI(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-
-class Upload(UpdateView):
-    model = User
-    form_class = UserEditInfoCloudinaryForm
-    template_name = 'app/upload.html'
-    context_object_name = 'user'
-
-    def get_success_url(self):
-        return reverse("app:profile", args=[self.request.user.id])

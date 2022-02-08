@@ -14,11 +14,7 @@
     <li>
         <div class="user">
             <a href="{% url 'app:profile' user.id %}">
-                {% if user.avatar %}
-                    {% cloudinary user.avatar format="jpg" alt="avatar" %}
-                {% else %}
-                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
-                {% endif %}
+                {% cloudinary user.avatar format="jpg" alt="avatar" %}
             </a>
             <a href="{% url 'app:profile' user.id %}">
                 <span class="name ms-2">{{ user.first_name }} {{ user.last_name }}</span>
