@@ -23,9 +23,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .helpers import get_timedelta_for_post
-from .models import User, Post, Subscription, Like
+from .models import User, Post, Subscription, Like, EMPTY_USER_IMAGE
 from .forms import UserLoginForm, UserFullInfoForm, UserRegisterForm, AddPostForm, UserEditInfoForm, \
-    UserAvatarUpdateForm
+    UserAvatarUpdateForm, UserEditInfoCloudinaryForm
 from .serializers import UserProfilePostSerializer, FeedPostSerializer, SubscriptionSerializer, LikeSerializer, \
     UserSerializer
 from .permissions import IsAdminOrUserOwnSubscriptions
@@ -150,7 +150,9 @@ class UserEnterInfoView(UserPassesTestMixin, LoginRequiredMixin, FormView):
             user.first_name = form.cleaned_data.get('first_name')
             user.last_name = form.cleaned_data.get('last_name')
             user.bio = form.cleaned_data.get('bio')
-            user.avatar = form.files.get('avatar')
+            avatar_image = form.files.get('avatar')
+            if avatar_image:
+                user.avatar = avatar_image
             user.save()
             self.success_url = reverse('app:profile', args=[user.id])
         return super().form_valid(form)
@@ -206,6 +208,7 @@ class UserProfile(LoginRequiredMixin, DetailView):
         context['followers'] = page_user.followers.all()
         context['following'] = page_user.following.all()
         context['num_posts'] = page_user.post_set.count()
+        context['empty_avatar'] = True if str(page_user.avatar) == 'media/empty_user_avatar' else False
         return context
 
 
@@ -227,7 +230,7 @@ class UserAvatarUpdateView(UserPassesTestMixin, LoginRequiredMixin, FormView):
         delete_avatar = request.POST.get('delete_avatar')
         if delete_avatar and delete_avatar == 'true':
             user = User.objects.get(email=self.request.user.email)
-            user.avatar = None
+            user.avatar = EMPTY_USER_IMAGE
             user.save()
             return HttpResponseRedirect(reverse('app:profile', args=[user.id]))
         return super().post(request, args, kwargs)
@@ -303,13 +306,13 @@ class UserPostList(APIView):
             serializer = UserProfilePostSerializer(posts, many=True)
         else:
             auth_user = User.objects.get(id=request.user.id)
-            if not q_params['start'] and not q_params['offset']:
-                posts = Post.objects.filter(user__in=auth_user.following.all())
-            elif not q_params['start'] or not q_params['offset']:
-                posts = Post.objects.filter(user__in=auth_user.following.all())[
-                        q_params['start']:q_params['offset']]
+            posts = Post.objects.filter(user__in=auth_user.following.all())\
+                .union(Post.objects.filter(user=auth_user))\
+                .order_by('-pub_date')
+            if not q_params['start'] or not q_params['offset']:
+                posts = posts[q_params['start']:q_params['offset']]
             elif q_params['offset'] and q_params['start']:
-                posts = Post.objects.filter(user__in=auth_user.following.all())[
+                posts = posts[
                         q_params['start']:q_params['start'] + q_params['offset']]
             serializer = FeedPostSerializer(posts, many=True)
 
@@ -521,4 +524,3 @@ class UserInfoAPI(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-

@@ -38,12 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         const avatarLink = document.createElement('a')
                         avatarLink.href = `${window.location.origin}/app/${personId}/profile`
                         const avatarImg = document.createElement('img')
-                        if (data.avatar) {
-                          avatarImg.src = data.avatar
-                        }
-                        else {
-                          avatarImg.src = "/static/app/img/empty_user.jpg"
-                        }
+                        avatarImg.src = data.avatar
                         avatarLink.appendChild(avatarImg)
                         personItem.appendChild(avatarLink)
 
@@ -93,12 +88,7 @@ function showPosts (posts) {
         const userAvatarLink = document.createElement('a')
         userAvatarLink.href = `${window.location.origin}/app/${post.user}/profile`
         const imgAvatar = document.createElement('img')
-        if (post.user_avatar) {
-            imgAvatar.src = post.user_avatar
-        }
-        else {
-            imgAvatar.src = "/static/app/img/empty_user.jpg"
-        }
+        imgAvatar.src = post.user_avatar
         userAvatarLink.append(imgAvatar)
         divAvatar.append(userAvatarLink)
         divAuthorPost.append(divAvatar)

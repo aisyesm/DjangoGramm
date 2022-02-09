@@ -2,6 +2,7 @@
 {% block head %}
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'app/css/user_detail.css' %}">
+{% load cloudinary %}
 {{ block.super }}
 {% endblock %}
 
@@ -9,28 +10,22 @@
 <div class="col-4">
     <div class="py-5 d-flex flex-row justify-content-center">
         {% if can_edit %}
-            {% if user.avatar %}
-                <div data-bs-toggle="modal" data-bs-target="#editAvatarModal">
-                    <img src="{{ user.avatar.url }}" class="avatar-img avatar-can-change" alt="avatar here">
-                </div>
-            {% else %}
+            {% if empty_avatar %}
                 <label for="id_avatar">
-                    <img src="{% static 'app/img/empty_user.jpg' %}" class="avatar-img avatar-can-change"
-                         data-bs-toggle="tooltip" data-bs-placement="right" title="Add a profile photo" alt="avatar here">
+                    {% cloudinary user.avatar format="jpg" class="avatar-img avatar-can-change" alt="avatar here" %}
                 </label>
                 <form method="post" enctype="multipart/form-data" id="form_empty_img"
                       action="{% url 'app:change_avatar' auth_user.id %}">
                     {% csrf_token %}
                     <input type="file" name="avatar" accept="image/*" id="id_avatar" style="display: none;">
                 </form>
-            {% endif %}
-
-        {% else %}
-            {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" class="avatar-img">
             {% else %}
-                <img src="{% static 'app/img/empty_user.jpg' %}" class="avatar-img">
+                <div data-bs-toggle="modal" data-bs-target="#editAvatarModal">
+                    {% cloudinary user.avatar format="jpg" class="avatar-img avatar-can-change" alt="avatar here" %}
+                </div>
             {% endif %}
+        {% else %}
+            {% cloudinary user.avatar format="jpg" class="avatar-img" alt="avatar here" %}
         {% endif %}
     </div>
 </div>
@@ -125,11 +120,7 @@
                     <li>
                         <div class="follower">
                             <a href="{% url 'app:profile' follower.id %}">
-                                {% if follower.avatar %}
-                                <img src="{{ follower.avatar.url }}" alt="avatar">
-                                {% else %}
-                                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
-                                {% endif %}
+                                {% cloudinary follower.avatar format="jpg" alt="avatar" %}
                             </a>
                             <a href="{% url 'app:profile' follower.id %}">
                                 <span class="name ms-2">{{ follower.first_name }} {{ follower.last_name }}</span>
@@ -160,11 +151,7 @@
                     <li>
                         <div class="followee">
                             <a href="{% url 'app:profile' followee.id %}">
-                                {% if followee.avatar %}
-                                <img src="{{ followee.avatar.url }}" alt="avatar">
-                                {% else %}
-                                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
-                                {% endif %}
+                                {% cloudinary followee.avatar format="jpg" alt="avatar" %}
                             </a>
                             <a href="{% url 'app:profile' followee.id %}">
                                 <span class="name ms-2">{{ followee.first_name }} {{ followee.last_name }}</span>

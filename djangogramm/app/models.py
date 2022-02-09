@@ -4,6 +4,34 @@ from django.contrib.auth.models import (
 )
 from django.urls import reverse
 from PIL import Image
+from cloudinary.models import CloudinaryField as BaseCloudinaryField
+
+EMPTY_USER_IMAGE = 'image/upload/v1644059525/media/empty_user_avatar'
+
+
+class CloudinaryAvatarField(BaseCloudinaryField):
+    def upload_options(self, instance):
+        return {
+            'folder': f"media/{instance.id}/avatar/",
+            'public_id': f"avatar_{instance.id}",
+        }
+
+    def pre_save(self, model_instance, add):
+        self.options.update(self.upload_options(model_instance))
+        return super().pre_save(model_instance, add)
+
+
+class CloudinaryPostField(BaseCloudinaryField):
+    def upload_options(self, instance):
+        print(instance.pub_date)
+        return {
+            'folder': f"media/{instance.user.id}/posts/",
+            'public_id': f"{instance.user.id}_{instance.pub_date}",
+        }
+
+    def pre_save(self, model_instance, add):
+        self.options.update(self.upload_options(model_instance))
+        return super().pre_save(model_instance, add)
 
 
 class MyUserManager(BaseUserManager):
@@ -58,7 +86,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(blank=True, max_length=20)
     last_name = models.CharField(blank=True, max_length=20)
     bio = models.TextField(blank=True, max_length=70)
-    avatar = models.ImageField(null=True, blank=True, upload_to=user_avatar_path)
+    avatar = CloudinaryAvatarField('image', default=EMPTY_USER_IMAGE)
     followers = models.ManyToManyField('self', through='Subscription', through_fields=('followee', 'follower'))
     following = models.ManyToManyField('self', through='Subscription', through_fields=('follower', 'followee'))
 
@@ -78,14 +106,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         return True
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # saving image first
-        if self.avatar:
-            with Image.open(self.avatar.path) as img:
-                if img.height > 512 or img.width > 512:
-                    size = (512, 512)
-                    img.thumbnail(size)
-                    img.save(self.avatar.path, format="JPEG")  # saving image at the same path
+    # code for Pillow, before using Cloudinary
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)  # saving image first
+    #     if self.avatar:
+    #         with Image.open(self.avatar.path) as img:
+    #             if img.height > 512 or img.width > 512:
+    #                 size = (512, 512)
+    #                 img.thumbnail(size)
+    #                 img.save(self.avatar.path, format="JPEG")  # saving image at the same path
 
     @property
     def is_staff(self):
@@ -94,22 +123,25 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to=user_posts_path)
     caption = models.CharField(max_length=200, blank=True)
     pub_date = models.DateTimeField('date posted', auto_now_add=True)
     likes = models.ManyToManyField(User, through='Like', related_name='users_liked')
+    image = CloudinaryPostField('image')
 
     class Meta:
         ordering = ['-pub_date']
 
-    def save(self):
-        super().save()  # saving image first
-        if self.image:
-            with Image.open(self.image.path) as img:
-                if img.height > 1024 or img.width > 1024:
-                    size = (1024, 1024)
-                    img.thumbnail(size)
-                    img.save(self.image.path, format="JPEG")  # saving image at the same path
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Call the "real" save() method.
+
+    # def save(self):
+    #     super().save()  # saving image first
+    #     if self.image:
+    #         with Image.open(self.image.path) as img:
+    #             if img.height > 1024 or img.width > 1024:
+    #                 size = (1024, 1024)
+    #                 img.thumbnail(size)
+    #                 img.save(self.image.path, format="JPEG")  # saving image at the same path
 
     def get_absolute_url(self):
         return reverse('app:post_detail', kwargs={'pk': self.pk})

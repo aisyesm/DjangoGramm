@@ -4,6 +4,7 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'app/css/user_edit_profile.css' %}">
 {{ block.super }}
+{% load cloudinary %}
 {% endblock %}
 
 {% block below-navbar %}
@@ -15,11 +16,7 @@
             <div class="mb-3">
                 <label>
                     {{ form.avatar }}
-                    {% if user.avatar %}
-                        <img id="output" src="{{ user.avatar.url }}">
-                    {% else %}
-                        <img id="output" src="{% static 'app/img/empty_user.jpg' %}">
-                    {% endif %}
+                    {% cloudinary user.avatar format="jpg" id="output" alt="avatar here" %}
                 </label>
             </div>
             <div>

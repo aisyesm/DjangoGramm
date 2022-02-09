@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'app/css/post_detail.css' %}">
 {{ block.super }}
+{% load cloudinary %}
 {% endblock %}
 
 {% block below-navbar %}
@@ -16,11 +17,7 @@
             <div class="post-user">
                 <div class="avatar">
                     <a href="{% url 'app:profile' post.user.id %}">
-                        {% if post.user.avatar %}
-                            <img src="{{ post.user.avatar.url }}">
-                        {% else %}
-                            <img src="{% static 'app/img/empty_user.jpg' %}">
-                        {% endif %}
+                        {% cloudinary post.user.avatar format="jpg" alt="avatar" %}
                     </a>
                 </div>
                 <div class="author">
@@ -29,7 +26,7 @@
                     </a>
                 </div>
             </div>
-            <div class="post-image"><img src="{{ post.image.url }}"></div>
+            <div class="post-image">{% cloudinary post.image format="jpg" alt="post" %}</div>
             <div class="like-container d-flex mt-3 ms-3">
                 <div class="heart d-flex align-items-center" id="heart"><i></i></div>
                 <div class="number-likes ps-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#likesModal">
@@ -131,11 +128,7 @@
                     <li>
                         <div class="person-liked">
                             <a href="{% url 'app:profile' person.id %}">
-                                {% if person.avatar %}
-                                <img src="{{ person.avatar.url }}" alt="avatar">
-                                {% else %}
-                                <img src="{% static 'app/img/empty_user.jpg' %}" alt="avatar">
-                                {% endif %}
+                                {% cloudinary person.avatar format="jpg" alt="avatar" %}
                             </a>
                             <a href="{% url 'app:profile' person.id %}">
                                 <span class="name ms-2">{{ person.first_name }} {{ person.last_name }}</span>

@@ -172,25 +172,16 @@ class UserEnterInfoTestCase(TestCase):
         """Make sure provided data was uploaded and added to user.
         Then redirect to profile page."""
         self.c.login(email=self.user.email, password='test')
-        with open(f'{settings.MEDIA_ROOT}/test.jpg', 'rb') as img:
-            data = {'first_name': 'Test', 'last_name': 'Test', 'bio': 'some bio for test', 'avatar': img}
-            response = self.c.post(f'/app/{self.user.pk}/enter_info', data=data, follow=True)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.resolver_match.func.__name__, UserProfile.as_view().__name__)
-            self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
-            user = User.objects.filter(email=self.user.email).first()
-            self.assertEqual(user.first_name, 'Test')
-            self.assertEqual(user.last_name, 'Test')
-            self.assertEqual(user.bio, 'some bio for test')
-            self.assertIsNotNone(user.avatar)
-            pattern = r'(\d+)/avatar/(\S+)'
-            avatar_path = re.search(pattern, str(user.avatar))
-            self.assertIsNotNone(avatar_path)
-            user_id, file_name = avatar_path.group(1), avatar_path.group(2)
-            self.assertEqual(file_name, 'test.jpg')
-            for folder in os.listdir(settings.MEDIA_ROOT):
-                if folder == user_id:
-                    shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
+        data = {'first_name': 'Test', 'last_name': 'Test', 'bio': 'some bio for test'}
+        response = self.c.post(f'/app/{self.user.pk}/enter_info', data=data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.func.__name__, UserProfile.as_view().__name__)
+        self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
+        user = User.objects.filter(email=self.user.email).first()
+        self.assertEqual(user.first_name, 'Test')
+        self.assertEqual(user.last_name, 'Test')
+        self.assertEqual(user.bio, 'some bio for test')
+        self.assertEqual(user.avatar.public_id, 'media/empty_user_avatar')
 
 
 class UserEditInfoTestCase(TestCase):
@@ -221,23 +212,14 @@ class UserEditInfoTestCase(TestCase):
     def test_user_can_edit_profile(self):
         """After submitting form user profile gets updated."""
         self.c.login(email=self.user.email, password='test')
-        with open(f'{settings.MEDIA_ROOT}/test1.jpg', 'rb') as img:
-            data = {'first_name': 'New', 'last_name': 'New', 'bio': 'New', 'avatar': img, 'proceed': 'continue'}
-            response = self.c.post(f'/app/{self.user.pk}/edit_profile', data=data, follow=True)
+
+        data = {'first_name': 'New', 'last_name': 'New', 'bio': 'New', 'proceed': 'continue'}
+        response = self.c.post(f'/app/{self.user.pk}/edit_profile', data=data, follow=True)
         self.assertTemplateUsed(response=response, template_name='app/user_detail.html')
         user = User.objects.filter(email=self.user.email).first()
         self.assertEqual(user.first_name, 'New')
         self.assertEqual(user.last_name, 'New')
         self.assertEqual(user.bio, 'New')
-        self.assertIsNotNone(user.avatar)
-        pattern = r'(\d+)/avatar/(\S+)'
-        avatar_path = re.search(pattern, str(user.avatar))
-        self.assertIsNotNone(avatar_path)
-        user_id, file_name = avatar_path.group(1), avatar_path.group(2)
-        self.assertEqual(file_name, 'test1.jpg')
-        for folder in os.listdir(settings.MEDIA_ROOT):
-            if folder == user_id:
-                shutil.rmtree(f'{settings.MEDIA_ROOT}/{folder}')
 
     def test_user_cannot_edit_other_user_avatar(self):
         """Authenticated user cannot edit other user's avatar."""
@@ -367,7 +349,7 @@ class UserPostsAPITestCase(APITestCase):
         self.client.force_authenticate(user=user)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), 17)
         response = self.client.get(url + '?start=1&offset=2', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
@@ -646,7 +628,7 @@ class MySeleniumTests(StaticLiveServerTestCase):
         self.selenium.execute_script("window.scrollTo(0, document.body.scrollHeight - 807)")
         time.sleep(5)
         posts = self.selenium.find_elements(By.CSS_SELECTOR, value='.posts .card')
-        self.assertEqual(len(posts), 13)
+        self.assertEqual(len(posts), 17)
 
     def test_my_profile_link_redirects_to_logged_in_user(self):
         """Press My Profile from another user's profile."""
