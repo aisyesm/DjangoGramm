@@ -126,7 +126,7 @@ class Post(models.Model):
     caption = models.CharField(max_length=200, blank=True)
     pub_date = models.DateTimeField('date posted', auto_now_add=True)
     likes = models.ManyToManyField(User, through='Like', related_name='users_liked')
-    image = CloudinaryPostField('image')
+    image = CloudinaryPostField('image', proxy='http://proxy.server:3128')
 
     class Meta:
         ordering = ['-pub_date']
