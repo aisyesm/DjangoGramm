@@ -86,7 +86,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(blank=True, max_length=20)
     last_name = models.CharField(blank=True, max_length=20)
     bio = models.TextField(blank=True, max_length=70)
-    avatar = CloudinaryAvatarField('image', default=EMPTY_USER_IMAGE)
+    avatar = CloudinaryAvatarField('image', default=EMPTY_USER_IMAGE, proxy='http://proxy.server:3128')
     followers = models.ManyToManyField('self', through='Subscription', through_fields=('followee', 'follower'))
     following = models.ManyToManyField('self', through='Subscription', through_fields=('follower', 'followee'))
 
