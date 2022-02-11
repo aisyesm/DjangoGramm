@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin
@@ -6,7 +8,7 @@ from django.urls import reverse
 from PIL import Image
 from cloudinary.models import CloudinaryField as BaseCloudinaryField
 
-EMPTY_USER_IMAGE = 'image/upload/v1644059525/media/empty_user_avatar'
+EMPTY_USER_IMAGE = os.getenv('EMPTY_USER_IMAGE')
 
 
 class CloudinaryAvatarField(BaseCloudinaryField):
